@@ -17,7 +17,7 @@ public class ReservationEventAdapterServices implements ReservationEventServices
     @Override
     public boolean beginCreateReservationEvent(ReservationDTO reservationDTO) {
         boolean succes = this.reservationServices.beginCreationReservation(reservationDTO.getFlightInstanceSeats());
-        this.jEventPublisher.publish(EventId.RESERVATION_AIRLINE_INIT_CREATE_CUSTOMER, ReservationMapper.INSTANCE.dtoToCommandCreateCustome(reservationDTO));
+        this.jEventPublisher.publish(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION, ReservationMapper.INSTANCE.dtoToCommandCreateCustome(reservationDTO));
         return succes;
     }
 

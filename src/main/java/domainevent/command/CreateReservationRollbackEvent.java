@@ -15,7 +15,7 @@ public class CreateReservationRollbackEvent extends BaseHandler {
 
     @Override
     public void handleCommand(Object data) {
-        CreateReservationCommand c = (CreateReservationCommand) data;
+        CreateReservationCommand c = this.gson.fromJson(data.toString(), CreateReservationCommand.class);
         this.reservationServices.removeReservation(c.getIdReservation());
     }
     

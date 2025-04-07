@@ -21,7 +21,7 @@ public class CreateReservationCommmitEvent extends BaseHandler {
 
     @Override
     public void handleCommand(Object data) {
-        CreateReservationCommand c = (CreateReservationCommand) data;
+        CreateReservationCommand c = this.gson.fromJson(data.toString(), CreateReservationCommand.class);
         List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
             ReservationLIneDTO l = new ReservationLIneDTO();
             l.setFlightInstanceId(info.getIdFlightInstance());

@@ -7,7 +7,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
 import business.dto.ReservationRequestDTO;
-import business.mapper.ReservationMapper;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
@@ -38,7 +37,7 @@ public class ReservationServicesImpl implements ReservationServices {
         r.setTotal(dto.getTotal());
         this.entityManager.persist(r);
         this.entityManager.flush();
-        return ReservationMapper.INSTANCE.entityToDto(r);
+        return r.toDTO();
     }  
 
     @Override

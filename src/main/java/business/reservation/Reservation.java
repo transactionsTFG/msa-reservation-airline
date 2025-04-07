@@ -58,5 +58,7 @@ public class Reservation {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
+    public ReservationDTO toDTO() {
+        return new ReservationDTO(this.id, this.createdAt, this.total, this.active, this.customerId, this.statusSaga);
+    }
 }

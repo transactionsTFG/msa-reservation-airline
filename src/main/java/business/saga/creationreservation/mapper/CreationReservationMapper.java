@@ -9,6 +9,6 @@ import msa.commons.microservices.reservationairline.commandevent.model.CustomerI
 
 @Mapper
 public interface CreationReservationMapper {
-    public static final CreationReservationMapper INSTANCE = Mappers.getMapper(CreationReservationMapper.class);
+    CreationReservationMapper INSTANCE = Mappers.getMapper(CreationReservationMapper.class);
     CustomerInfo dtoToCustomerInfo(CustomerDTO dto);
 }

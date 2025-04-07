@@ -14,6 +14,7 @@ import domainevent.command.handler.EventHandler;
 import msa.commons.event.EventId;
 
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
+import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
 
 @Singleton
 @Startup
@@ -41,7 +42,7 @@ public class EventHandlerRegistry {
     }
 
     @Inject
-    public void setCreateReservationRollbackEvent(@CreateReservationCommitQualifier EventHandler createReservationRollbackEvent) {
+    public void setCreateReservationRollbackEvent(@CreateReservationRollbackQualifier EventHandler createReservationRollbackEvent) {
         this.createReservationRollbackEvent = createReservationRollbackEvent;
     }
 

@@ -1,6 +1,5 @@
 package domainevent.command;
 
-import java.beans.EventHandler;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -8,10 +7,10 @@ import javax.ejb.Stateless;
 
 import business.dto.ReservationRequestDTO;
 import business.reservation.ReservationDTO;
-import business.reservation.ReservationWithLinesDTO;
 import business.saga.creationreservation.mapper.CreationReservationMapper;
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
+import domainevent.command.handler.EventHandler;
 import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
 import msa.commons.microservices.reservationairline.commandevent.model.IdFlightInstanceInfo;

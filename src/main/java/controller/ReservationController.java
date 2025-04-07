@@ -13,21 +13,21 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import business.dto.ReservationDTO;
-import business.servicesevent.ReservationEventServices;
+import business.dto.ReservationRequestDTO;
+import business.services.ReservationServices;
 
 @Path("/reservation")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReservationController {
     private static final Logger LOGGER = LogManager.getLogger(ReservationController.class);
-    private ReservationEventServices reservationEventServices;
+    private ReservationServices reservationServices;
 
     @POST
     @Transactional
-    public Response createUser(ReservationDTO reservation) {
+    public Response createUser(ReservationRequestDTO reservation) {
         LOGGER.info("Iniciando creacion de reserva: {}", reservation);
-        boolean success = this.reservationEventServices.beginCreateReservationEvent(reservation);
+        boolean success = this.reservationServices.creationReservationAsync(reservation);
         if (success) 
             return Response.status(Response.Status.CREATED).entity("La creacion de la reserva se ha inicializado").build();
         else 
@@ -35,7 +35,7 @@ public class ReservationController {
     }
 
     @EJB
-    public void setReservationEventServices(ReservationEventServices reservationEventServices) {
-        this.reservationEventServices = reservationEventServices;
+    public void setReservationEventServices(ReservationServices reservationServices) {
+        this.reservationServices = reservationServices;
     }
 }

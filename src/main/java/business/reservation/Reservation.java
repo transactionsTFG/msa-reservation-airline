@@ -1,6 +1,7 @@
 package business.reservation;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,10 +10,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import business.reservationline.ReservationLine;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +46,9 @@ public class Reservation {
     @Column(name = "customer_id", nullable = false)
     private long customerId;
     
+    @OneToMany(mappedBy = "reservationId")
+	private Set<ReservationLine> reservationLine;
+
     @Version
     @Column(name = "version")
     private int version;

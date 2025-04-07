@@ -1,9 +1,12 @@
 package business.services;
 
-import java.util.List;
-
-import business.dto.FlightInstanceSeatsDTO;
+import business.dto.ReservationRequestDTO;
+import business.reservation.ReservationDTO;
+import business.reservation.ReservationWithLinesDTO;
 
 public interface ReservationServices {
-    boolean beginCreationReservation(List<FlightInstanceSeatsDTO> flightInstanceSeatsDTO);
+    boolean creationReservationAsync(ReservationRequestDTO request);
+    ReservationDTO creationReservationSync(ReservationDTO reservation);
+    boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);
+    boolean removeReservation(long idReservation);
 }

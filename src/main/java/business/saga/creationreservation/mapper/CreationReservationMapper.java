@@ -19,7 +19,7 @@ public interface CreationReservationMapper {
         CustomerInfo customerInfo = new CustomerInfo();
         customerInfo.setDni(dto.getDni());
         customerInfo.setEmail(dto.getEmail());
-        customerInfo.setEmail(dto.getEmail());
+        customerInfo.setName(dto.getName());
         customerInfo.setPhone(dto.getPhone());
         return customerInfo;
     }

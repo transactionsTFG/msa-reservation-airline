@@ -20,8 +20,8 @@ import msa.commons.saga.SagaPhases;
 public class CreateReservationCommmitEvent extends BaseHandler {
 
     @Override
-    public void handleCommand(Object data) {
-        CreateReservationCommand c = this.gson.fromJson(data.toString(), CreateReservationCommand.class);
+    public void handleCommand(String json) {
+        CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
         List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
             ReservationLIneDTO l = new ReservationLIneDTO();
             l.setFlightInstanceId(info.getIdFlightInstance());

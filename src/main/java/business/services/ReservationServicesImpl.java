@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
+import com.google.gson.Gson;
+
 import business.dto.ReservationRequestDTO;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
@@ -18,12 +20,13 @@ import msa.commons.event.EventId;
 public class ReservationServicesImpl implements ReservationServices {
     private EntityManager entityManager;
     private EventHandlerRegistry eventHandlerRegistry;
+    private Gson gson;
 
     @Override
     public boolean creationReservationAsync(ReservationRequestDTO request) {
         //TODO: Validacion negocio    
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)
-                                 .handleCommand(request);
+                                 .handleCommand(this.gson.toJson(request));
         return true;
     }
 
@@ -71,4 +74,5 @@ public class ReservationServicesImpl implements ReservationServices {
 
     @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
     @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
+    @Inject public void setGson(Gson gson) { this.gson = gson;  }
 }

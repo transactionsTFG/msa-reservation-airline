@@ -35,7 +35,7 @@ public class DomainEventConsumerReservationService implements MessageListener{
                 LOGGER.info("Recibido en Cola {}, Evento Id: {}, EventResponse: {}", JMSQueueNames.AIRLINE_RESERVATION_QUEUE, event.getEventId(), event.getData());
                 EventHandler commandHandler = this.eventHandlerRegistry.getHandler(event.getEventId());
                 if(commandHandler != null)
-                    commandHandler.handleCommand(event.getData());
+                    commandHandler.handleCommand(this.gson.toJson(event.getData()));
             }
         } catch (Exception e) {
             LOGGER.error("Error al recibir el mensaje: {}", e.getMessage());

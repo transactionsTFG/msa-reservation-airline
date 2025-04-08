@@ -22,8 +22,8 @@ import msa.commons.saga.SagaPhases;
 public class CreateReservationBeginEvent extends BaseHandler {
 
     @Override
-    public void handleCommand(Object data) {
-        ReservationRequestDTO r = (ReservationRequestDTO) data;
+    public void handleCommand(String json) {
+        ReservationRequestDTO r = this.gson.fromJson(json, ReservationRequestDTO.class);
         ReservationDTO reservationDTO = new ReservationDTO();
         reservationDTO.setActive(false);
         reservationDTO.setCustomerId(-1);

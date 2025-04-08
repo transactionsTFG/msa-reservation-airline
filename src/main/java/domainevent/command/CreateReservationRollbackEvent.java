@@ -14,8 +14,8 @@ import msa.commons.microservices.reservationairline.qualifier.CreateReservationR
 public class CreateReservationRollbackEvent extends BaseHandler {
 
     @Override
-    public void handleCommand(Object data) {
-        CreateReservationCommand c = this.gson.fromJson(data.toString(), CreateReservationCommand.class);
+    public void handleCommand(String json) {
+        CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
         this.reservationServices.removeReservation(c.getIdReservation());
     }
     

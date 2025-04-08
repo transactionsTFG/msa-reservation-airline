@@ -1,4 +1,4 @@
-package domainevent.command;
+package domainevent.command.event.createreservation;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;

@@ -34,7 +34,7 @@ public class CreateReservationBeginEvent extends BaseHandler {
             IdFlightInstanceInfo flightInfo = new IdFlightInstanceInfo();
             flightInfo.setIdFlightInstance(request.getIdFlightInstance());
             flightInfo.setNumberSeats(request.getNumberSeats()); 
-            flightInfo.setIdAircraft(-1); flightInfo.setIdFlightInstance(-1); flightInfo.setPrice(0);
+            flightInfo.setIdAircraft(-1); flightInfo.setTotalOccupiedSeats(0); flightInfo.setPrice(0);
             return flightInfo;
         }).toList();
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, CreateReservationCommand.builder()

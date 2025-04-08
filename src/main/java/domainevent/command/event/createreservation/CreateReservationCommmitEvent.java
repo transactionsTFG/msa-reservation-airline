@@ -45,6 +45,7 @@ public class CreateReservationCommmitEvent extends BaseHandler {
                                                                                     .lines(buildReservationLine)
                                                                                     .build();
         this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
+        LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
     }
     
 }

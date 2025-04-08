@@ -21,6 +21,7 @@ public class CreateReservationRollbackEvent extends BaseHandler {
         LOGGER.info("***** INICIAMOS ROLLBACK SAGA CREACION DE RESERVA *****");
         CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
         this.reservationServices.removeReservation(c.getIdReservation());
+        LOGGER.info("***** ROLLBACK TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
     }
     
 }

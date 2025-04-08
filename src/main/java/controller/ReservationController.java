@@ -31,7 +31,7 @@ public class ReservationController {
         if (success) 
             return Response.status(Response.Status.CREATED).entity("La creacion de la reserva se ha inicializado").build();
         else 
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error al crear la reserva").build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("No ha superado las reglas de negocio").build();
     }
 
     @EJB

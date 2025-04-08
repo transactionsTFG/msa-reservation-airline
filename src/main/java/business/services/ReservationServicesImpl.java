@@ -26,7 +26,7 @@ public class ReservationServicesImpl implements ReservationServices {
 
     @Override
     public boolean creationReservationAsync(ReservationRequestDTO request) {
-        if (this.rulesBusinessCustomer.isValid(request.getCustomer())) 
+        if (!this.rulesBusinessCustomer.isValid(request.getCustomer())) 
             return false;
     
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)

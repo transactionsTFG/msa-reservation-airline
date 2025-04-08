@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import business.dto.FlightInstanceSeatsDTO;
 import business.dto.ReservationRequestDTO;
 import business.reservation.ReservationDTO;
@@ -25,7 +28,7 @@ import msa.commons.saga.SagaPhases;
 @CreateReservationBeginQualifier
 @Local(EventHandler.class)
 public class CreateReservationBeginEvent extends BaseHandler {
-
+    private static final Logger LOGGER = LogManager.getLogger(CreateReservationBeginEvent.class);
     @Override
     public void handleCommand(String json) {
         ReservationRequestDTO r = this.gson.fromJson(json, ReservationRequestDTO.class);
@@ -49,6 +52,7 @@ public class CreateReservationBeginEvent extends BaseHandler {
             flightInfo.setIdAircraft(-1); flightInfo.setTotalOccupiedSeats(0); flightInfo.setPrice(0);
             return flightInfo;
         }).toList();
+        LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA *****");
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, CreateReservationCommand.builder()
                                                                                                                             .customerInfo(CreationReservationMapper.INSTANCE.dtoToCustomerInfo(r.getCustomer()))
                                                                                                                             .flightInstanceInfo(listFlightInfo)

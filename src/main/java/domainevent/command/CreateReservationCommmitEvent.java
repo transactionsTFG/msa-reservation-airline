@@ -5,6 +5,9 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLIneDTO;
@@ -18,9 +21,10 @@ import msa.commons.saga.SagaPhases;
 @CreateReservationCommitQualifier
 @Local(EventHandler.class)
 public class CreateReservationCommmitEvent extends BaseHandler {
-
+    private static final Logger LOGGER = LogManager.getLogger(CreateReservationCommmitEvent.class);
     @Override
     public void handleCommand(String json) {
+        LOGGER.info("***** INICIAMOS COMMIT SAGA CREACION DE RESERVA *****");
         CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
         List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
             ReservationLIneDTO l = new ReservationLIneDTO();

@@ -15,16 +15,20 @@ import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLine;
 import domainevent.registry.EventHandlerRegistry;
 import msa.commons.event.EventId;
+import rules.RulesBusinessCustomer;
 
 @Stateless
 public class ReservationServicesImpl implements ReservationServices {
     private EntityManager entityManager;
     private EventHandlerRegistry eventHandlerRegistry;
     private Gson gson;
+    private RulesBusinessCustomer rulesBusinessCustomer;
 
     @Override
     public boolean creationReservationAsync(ReservationRequestDTO request) {
-        //TODO: Validacion negocio    
+        if (this.rulesBusinessCustomer.isValid(request.getCustomer())) 
+            return false;
+    
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)
                                  .handleCommand(this.gson.toJson(request));
         return true;
@@ -32,7 +36,6 @@ public class ReservationServicesImpl implements ReservationServices {
 
     @Override
     public ReservationDTO creationReservationSync(ReservationDTO dto) {
-        //TODO: Validacion negocio
         Reservation r = new Reservation();
         r.setActive(dto.isActive());
         r.setStatusSaga(dto.getStatusSaga());
@@ -75,4 +78,5 @@ public class ReservationServicesImpl implements ReservationServices {
     @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
     @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
     @Inject public void setGson(Gson gson) { this.gson = gson;  }
+    @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
 }

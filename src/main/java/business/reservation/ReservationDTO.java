@@ -17,4 +17,5 @@ public class ReservationDTO {
 	private boolean active;
 	private long customerId;
 	private SagaPhases statusSaga;
+	private String sagaId;
 }

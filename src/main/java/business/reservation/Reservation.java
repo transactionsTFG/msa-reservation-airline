@@ -44,6 +44,9 @@ public class Reservation {
     @Column(nullable = false, name = "status_saga")
     private SagaPhases statusSaga;
 
+    @Column(name = "saga_id", nullable = false)
+    private String sagaId;
+
     @Column(name = "customer_id", nullable = false)
     private long customerId;
     
@@ -59,6 +62,6 @@ public class Reservation {
         this.createdAt = LocalDateTime.now();
     }
     public ReservationDTO toDTO() {
-        return new ReservationDTO(this.id, this.createdAt, this.total, this.active, this.customerId, this.statusSaga);
+        return new ReservationDTO(this.id, this.createdAt, this.total, this.active, this.customerId, this.statusSaga, this.sagaId);
     }
 }

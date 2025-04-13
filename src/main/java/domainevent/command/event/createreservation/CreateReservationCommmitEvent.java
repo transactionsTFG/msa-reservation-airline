@@ -14,6 +14,7 @@ import business.reservationline.ReservationLIneDTO;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
 import msa.commons.event.EventData;
+import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
 import msa.commons.saga.SagaPhases;
@@ -28,26 +29,30 @@ public class CreateReservationCommmitEvent extends BaseHandler {
         LOGGER.info("***** INICIAMOS COMMIT SAGA CREACION DE RESERVA *****");
         EventData eventData = EventData.fromJson(json, CreateReservationCommand.class);
         CreateReservationCommand c = (CreateReservationCommand) eventData.getData();
-        List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
-            ReservationLIneDTO l = new ReservationLIneDTO();
-            l.setFlightInstanceId(info.getIdFlightInstance());
-            l.setActive(true);
-            l.setIdReservation(c.getIdReservation());
-            l.setPassengers(info.getNumberSeats());
-            l.setPrice(info.getPrice());
-            return l;
-        }).toList();
-        ReservationDTO buildReservation = new ReservationDTO();
-        buildReservation.setId(c.getIdReservation());
-        buildReservation.setCustomerId(c.getCustomerInfo().getIdCustomer());
-        buildReservation.setStatusSaga(SagaPhases.COMPLETED);
-        buildReservation.setActive(true);
-        ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
-                                                                                    .reservation(buildReservation)
-                                                                                    .lines(buildReservationLine)
-                                                                                    .build();
-        this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
-        LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
+        if (this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
+            this.jmsEventPublisher.publish(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA, eventData);
+        } else { 
+            List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
+                ReservationLIneDTO l = new ReservationLIneDTO();
+                l.setFlightInstanceId(info.getIdFlightInstance());
+                l.setActive(true);
+                l.setIdReservation(c.getIdReservation());
+                l.setPassengers(info.getNumberSeats());
+                l.setPrice(info.getPrice());
+                return l;
+            }).toList();
+            ReservationDTO buildReservation = new ReservationDTO();
+            buildReservation.setId(c.getIdReservation());
+            buildReservation.setCustomerId(c.getCustomerInfo().getIdCustomer());
+            buildReservation.setStatusSaga(SagaPhases.COMPLETED);
+            buildReservation.setActive(true);
+            ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
+                                                                                        .reservation(buildReservation)
+                                                                                        .lines(buildReservationLine)
+                                                                                        .build();
+            this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
+            LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
+        }
     }
     
 }

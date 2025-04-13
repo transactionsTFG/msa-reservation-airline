@@ -41,6 +41,7 @@ public class ReservationServicesImpl implements ReservationServices {
         r.setStatusSaga(dto.getStatusSaga());
         r.setCustomerId(dto.getCustomerId());
         r.setTotal(dto.getTotal());
+        r.setSagaId(dto.getSagaId());
         this.entityManager.persist(r);
         this.entityManager.flush();
         return r.toDTO();
@@ -72,6 +73,16 @@ public class ReservationServicesImpl implements ReservationServices {
     public boolean removeReservation(long idReservation) {
         Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
         this.entityManager.remove(r);
+        return true;
+    }
+
+    @Override
+    public boolean validateSagaId(long idReservation, String sagaId) {
+        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+        if (r == null) 
+            return false;
+        if (!sagaId.equals(r.getSagaId())) 
+            return false;
         return true;
     }
 

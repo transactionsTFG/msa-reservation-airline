@@ -56,12 +56,14 @@ public class CreateReservationBeginEvent extends BaseHandler {
             flightInfo.setIdAircraft(-1); flightInfo.setTotalOccupiedSeats(0); flightInfo.setPrice(0);
             return flightInfo;
         }).toList();
-        LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA *****");
-        EventData eventData = new EventData(sagaId, CreateReservationCommand.builder()
-                                                                            .customerInfo(CreationReservationMapper.INSTANCE.dtoToCustomerInfo(r.getCustomer()))
-                                                                            .flightInstanceInfo(listFlightInfo)
-                                                                            .idReservation(reservationDTO.getId())
-                                                                            .build());
+        LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA {} *****", sagaId);
+        EventData eventData = new EventData(sagaId, 
+                                            List.of(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA), 
+                                            CreateReservationCommand.builder()
+                                                                        .customerInfo(CreationReservationMapper.INSTANCE.dtoToCustomerInfo(r.getCustomer()))
+                                                                        .flightInstanceInfo(listFlightInfo)
+                                                                        .idReservation(reservationDTO.getId())
+                                                                        .build());
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventData);
     }
     

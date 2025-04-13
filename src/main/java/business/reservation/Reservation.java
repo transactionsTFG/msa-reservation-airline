@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -27,7 +28,9 @@ import msa.commons.saga.SagaPhases;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "reservation")
+@Table(name = "reservation", indexes = {
+    @Index(name = "idx_reservation_saga_id", columnList = "saga_id")
+})
 public class Reservation {
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

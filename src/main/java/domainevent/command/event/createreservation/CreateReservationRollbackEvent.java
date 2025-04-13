@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.event.EventData;
 import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
 
@@ -19,7 +20,8 @@ public class CreateReservationRollbackEvent extends BaseHandler {
     @Override
     public void commandPublisher(String json) {
         LOGGER.info("***** INICIAMOS ROLLBACK SAGA CREACION DE RESERVA *****");
-        CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
+        EventData eventData = EventData.fromJson(json, CreateReservationCommand.class);
+        CreateReservationCommand c = (CreateReservationCommand) eventData.getData();
         this.reservationServices.removeReservation(c.getIdReservation());
         LOGGER.info("***** ROLLBACK TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
     }

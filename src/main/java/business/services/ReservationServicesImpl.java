@@ -30,7 +30,7 @@ public class ReservationServicesImpl implements ReservationServices {
             return false;
     
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)
-                                 .handleCommand(this.gson.toJson(request));
+                                 .commandPublisher(this.gson.toJson(request));
         return true;
     }
 

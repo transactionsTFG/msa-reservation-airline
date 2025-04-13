@@ -13,18 +13,18 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import domainevent.command.handler.EventHandler;
+import domainevent.command.handler.CommandHandler;
 import domainevent.registry.EventHandlerRegistry;
 import msa.commons.consts.JMSQueueNames;
 import msa.commons.event.Event;
 
 
 @MessageDriven(mappedName = JMSQueueNames.AIRLINE_RESERVATION_QUEUE)
-public class DomainEventConsumerReservationService implements MessageListener{
+public class CommandConsumerReservationService implements MessageListener{
     
     private Gson gson;
     private EventHandlerRegistry eventHandlerRegistry;
-    private static final Logger LOGGER = LogManager.getLogger(DomainEventConsumerReservationService.class);
+    private static final Logger LOGGER = LogManager.getLogger(CommandConsumerReservationService.class);
 
     @Override
     @Transactional 
@@ -32,10 +32,10 @@ public class DomainEventConsumerReservationService implements MessageListener{
         try {
             if(msg instanceof TextMessage m) {
                 Event event = this.gson.fromJson(m.getText(), Event.class);
-                LOGGER.info("Recibido en Cola {}, Evento Id: {}, EventResponse: {}", JMSQueueNames.AIRLINE_RESERVATION_QUEUE, event.getEventId(), event.getData());
-                EventHandler commandHandler = this.eventHandlerRegistry.getHandler(event.getEventId());
+                LOGGER.info("Recibido en Cola {}, Evento Id: {}, EventResponse: {}", JMSQueueNames.AIRLINE_RESERVATION_QUEUE, event.getEventId(), event.getValue());
+                CommandHandler commandHandler = this.eventHandlerRegistry.getHandler(event.getEventId());
                 if(commandHandler != null)
-                    commandHandler.handleCommand(this.gson.toJson(event.getData()));
+                    commandHandler.commandPublisher(this.gson.toJson(event.getValue()));
             }
         } catch (Exception e) {
             LOGGER.error("Error al recibir el mensaje: {}", e.getMessage());

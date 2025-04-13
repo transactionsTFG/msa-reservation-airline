@@ -25,7 +25,7 @@ public class ReservationController {
 
     @POST
     @Transactional
-    public Response createUser(ReservationRequestDTO reservation) {
+    public Response createReservation(ReservationRequestDTO reservation) {
         LOGGER.info("Iniciando creacion de reserva: {}", reservation);
         boolean success = this.reservationServices.creationReservationAsync(reservation);
         if (success) 

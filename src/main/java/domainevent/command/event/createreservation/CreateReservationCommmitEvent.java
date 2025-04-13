@@ -12,18 +12,18 @@ import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLIneDTO;
 import domainevent.command.handler.BaseHandler;
-import domainevent.command.handler.EventHandler;
+import domainevent.command.handler.CommandHandler;
 import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
 import msa.commons.saga.SagaPhases;
 
 @Stateless
 @CreateReservationCommitQualifier
-@Local(EventHandler.class)
+@Local(CommandHandler.class)
 public class CreateReservationCommmitEvent extends BaseHandler {
     private static final Logger LOGGER = LogManager.getLogger(CreateReservationCommmitEvent.class);
     @Override
-    public void handleCommand(String json) {
+    public void commandPublisher(String json) {
         LOGGER.info("***** INICIAMOS COMMIT SAGA CREACION DE RESERVA *****");
         CreateReservationCommand c = this.gson.fromJson(json, CreateReservationCommand.class);
         List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {

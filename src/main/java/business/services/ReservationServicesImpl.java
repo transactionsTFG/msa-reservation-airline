@@ -48,6 +48,16 @@ public class ReservationServicesImpl implements ReservationServices {
     }  
 
     @Override
+    public boolean updateOnlyReservation(ReservationDTO reservation) {
+        Reservation r = this.entityManager.find(Reservation.class, reservation.getId(), LockModeType.OPTIMISTIC);
+        r.setActive(reservation.isActive());
+        r.setCustomerId(reservation.getCustomerId());
+        r.setStatusSaga(reservation.getStatusSaga());
+        this.entityManager.merge(r);
+        return true;
+    }
+
+    @Override
     public boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO) {
         Reservation r = this.entityManager.find(Reservation.class, reservationWithLinesDTO.getReservation().getId(), LockModeType.OPTIMISTIC);
         r.setActive(reservationWithLinesDTO.getReservation().isActive());
@@ -68,14 +78,7 @@ public class ReservationServicesImpl implements ReservationServices {
         this.entityManager.merge(r);
         return true;
     }
-
-    @Override
-    public boolean removeReservation(long idReservation) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        this.entityManager.remove(r);
-        return true;
-    }
-
+    
     @Override
     public boolean validateSagaId(long idReservation, String sagaId) {
         Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
@@ -90,4 +93,6 @@ public class ReservationServicesImpl implements ReservationServices {
     @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
     @Inject public void setGson(Gson gson) { this.gson = gson;  }
     @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
+
+    
 }

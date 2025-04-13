@@ -8,6 +8,6 @@ public interface ReservationServices {
     boolean creationReservationAsync(ReservationRequestDTO request);
     ReservationDTO creationReservationSync(ReservationDTO reservation);
     boolean validateSagaId(long idReservation, String sagaId);
+    boolean updateOnlyReservation(ReservationDTO reservation);
     boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);
-    boolean removeReservation(long idReservation);
 }

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -24,6 +25,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @IdClass(ReservationLineId.class)
 @Table(name = "reservation_line")
+@NamedQuery(name = "ReservationLine.findByFlightInstanceIdAndReservationId",
+            query = "SELECT rl FROM ReservationLine rl WHERE rl.flightInstanceId = :flightInstanceId AND rl.reservationId.id = :reservationId")
 public class ReservationLine {
     
     @Id
@@ -40,6 +43,9 @@ public class ReservationLine {
 
     @Column(nullable = false, name = "passenger_count")
     private int passengers;
+
+    @Column(name = "saga_id", nullable = false)
+    private String sagaId;
     
     @Column(nullable = false, name = "price")
     private double price;

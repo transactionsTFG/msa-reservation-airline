@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import business.dto.ReservationRequestDTO;
+import business.dto.modifyreservation.UpdateResevationDTO;
 import business.services.ReservationServices;
 
 @Path("/reservation")
@@ -30,6 +31,17 @@ public class ReservationController {
         boolean success = this.reservationServices.creationReservationAsync(reservation);
         if (success) 
             return Response.status(Response.Status.CREATED).entity("La creacion de la reserva se ha inicializado").build();
+        else 
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("No ha superado las reglas de negocio").build();
+    }
+
+    @POST
+    @Transactional
+    public Response modifyReservation(UpdateResevationDTO resevation){
+        LOGGER.info("Iniciando modificacion de reserva: {}", resevation);
+        boolean success = this.reservationServices.modifyReservationAsync(resevation);
+        if (success) 
+            return Response.status(Response.Status.OK).entity("La modificacion de la reserva se ha inicializado").build();
         else 
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("No ha superado las reglas de negocio").build();
     }

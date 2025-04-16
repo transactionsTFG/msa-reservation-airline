@@ -9,6 +9,7 @@ import javax.persistence.LockModeType;
 import com.google.gson.Gson;
 
 import business.dto.ReservationRequestDTO;
+import business.dto.modifyreservation.UpdateResevationDTO;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
@@ -78,6 +79,16 @@ public class ReservationServicesImpl implements ReservationServices {
         this.entityManager.merge(r);
         return true;
     }
+
+    @Override
+    public boolean modifyReservationAsync(UpdateResevationDTO request) {
+        Reservation r = this.entityManager.find(Reservation.class, request.getIdReservation(), LockModeType.OPTIMISTIC);
+        if (r == null) 
+            return false;
+        this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA)
+                                 .commandPublisher(this.gson.toJson(request));
+        return true;
+    }
     
     @Override
     public boolean validateSagaId(long idReservation, String sagaId) {
@@ -93,6 +104,8 @@ public class ReservationServicesImpl implements ReservationServices {
     @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
     @Inject public void setGson(Gson gson) { this.gson = gson;  }
     @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
+
+    
 
     
 }

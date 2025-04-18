@@ -76,5 +76,33 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
             r.setSagaId(sagaId);
         }
     }
+
+    @Override
+    public boolean validateSagaId(List<Long> idFlightInstance, long idReservation, String sagaId) {
+        for (long idF : idFlightInstance) {
+            List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
+                .setParameter("flightInstanceId", idF)
+                .setParameter("reservationId", idReservation)
+                .getResultList();
+            ReservationLine r = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
+            if (r == null || !r.isActive() || !r.getSagaId().equals(sagaId)) 
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void updateReservationLines(List<ReservationLIneDTO> reservationLines) {
+        for (ReservationLIneDTO rL : reservationLines) {
+            List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
+                .setParameter("flightInstanceId", rL.getFlightInstanceId())
+                .setParameter("reservationId", rL.getIdReservation())
+                .getResultList();
+            ReservationLine r = (reservationLine.isEmpty()) ? null : reservationLine.get(0);
+            if(r != null)    
+                r.setSagaId(rL.getSagaId());
+        }
+
+    }
     
 }

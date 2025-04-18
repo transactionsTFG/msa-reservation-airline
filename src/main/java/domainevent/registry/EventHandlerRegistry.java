@@ -9,6 +9,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
+import business.saga.updatereservation.qualifier.UpdateReservationBeginQualifier;
 import domainevent.command.handler.CommandHandler;
 
 import msa.commons.event.EventId;
@@ -23,13 +24,14 @@ public class EventHandlerRegistry {
     private CommandHandler createReservationCommitEvent;
     private CommandHandler createReservationRollbackEvent;
     private CommandHandler createReservationBeginEvent;
-
+    private CommandHandler updateReservationBeginEvent;
     
     @PostConstruct
     public void init(){
         this.handlers.put(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_COMMIT_SAGA, this.createReservationCommitEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA, this.createReservationRollbackEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA, this.createReservationBeginEvent);        
+        this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA, this.updateReservationBeginEvent);
     }
 
     public CommandHandler getHandler(EventId eventId) {
@@ -49,6 +51,11 @@ public class EventHandlerRegistry {
     @Inject
     public void setCreateReservationBeginEvent(@CreateReservationBeginQualifier CommandHandler createReservationBeginEvent) {
         this.createReservationBeginEvent = createReservationBeginEvent;
+    }
+
+    @Inject
+    public void setUpdateReservationBeginEvent(@UpdateReservationBeginQualifier CommandHandler updateReservationBeginEvent) {
+        this.updateReservationBeginEvent = updateReservationBeginEvent;
     }
 
 }

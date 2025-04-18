@@ -1,37 +1,36 @@
-package domainevent.command.event.createreservation;
+package domainevent.command.event.updatereservationevent;
 
 import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLIneDTO;
+
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
-import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
+import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
+import msa.commons.microservices.reservationairline.updatereservation.model.IdUpdateFlightInstanceInfo;
+import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
 import msa.commons.saga.SagaPhases;
 
 @Stateless
-@CreateReservationCommitQualifier
+@UpdateReservationByModifyReservationCommit
 @Local(CommandHandler.class)
-public class CreateReservationCommmitEvent extends BaseHandler {
-    private static final Logger LOGGER = LogManager.getLogger(CreateReservationCommmitEvent.class);
+public class UpdateReservationCommitEvent extends BaseHandler {
+
     @Override
     public void commandPublisher(String json) {
-        LOGGER.info("***** INICIAMOS COMMIT SAGA CREACION DE RESERVA *****");
-        EventData eventData = EventData.fromJson(json, CreateReservationCommand.class);
-        CreateReservationCommand c = (CreateReservationCommand) eventData.getData();
-        if (!this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
-            this.jmsEventPublisher.publish(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA, eventData);
-        } else { 
+        EventData eventData = EventData.fromJson(json, UpdateReservationCommand.class);
+        UpdateReservationCommand c = (UpdateReservationCommand) eventData.getData();
+        List<Long> listFlightInstances = c.getFlightInstanceInfo().stream().map(IdUpdateFlightInstanceInfo::getIdFlightInstance).toList();
+        if (!this.reservationLineServices.validateSagaId(listFlightInstances, c.getIdReservation(), eventData.getSagaId())) {
+            this.jmsEventPublisher.publish(EventId.FLIGHT_UPDATE_FLIGHT_BY_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, eventData);
+        } else {
             List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
                 ReservationLIneDTO l = new ReservationLIneDTO();
                 l.setFlightInstanceId(info.getIdFlightInstance());
@@ -43,15 +42,13 @@ public class CreateReservationCommmitEvent extends BaseHandler {
             }).toList();
             ReservationDTO buildReservation = new ReservationDTO();
             buildReservation.setId(c.getIdReservation());
-            buildReservation.setCustomerId(c.getCustomerInfo().getIdCustomer());
             buildReservation.setStatusSaga(SagaPhases.COMPLETED);
             buildReservation.setActive(true);
             ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
                                                                                         .reservation(buildReservation)
                                                                                         .lines(buildReservationLine)
                                                                                         .build();
-            this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
-            LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
+            this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
         }
     }
     

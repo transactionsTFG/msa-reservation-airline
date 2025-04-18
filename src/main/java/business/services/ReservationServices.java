@@ -12,4 +12,5 @@ public interface ReservationServices {
     boolean validateSagaId(long idReservation, String sagaId);
     boolean updateOnlyReservation(ReservationDTO reservation);
     boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);
+    boolean updateReservationAndUpdateLines(ReservationWithLinesDTO reservationWithLinesDTO);
 }

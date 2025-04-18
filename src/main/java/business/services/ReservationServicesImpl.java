@@ -1,5 +1,7 @@
 package business.services;
 
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -24,6 +26,13 @@ public class ReservationServicesImpl implements ReservationServices {
     private EventHandlerRegistry eventHandlerRegistry;
     private Gson gson;
     private RulesBusinessCustomer rulesBusinessCustomer;
+
+    
+    @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
+    @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
+    @Inject public void setGson(Gson gson) { this.gson = gson;  }
+    @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
+
 
     @Override
     public boolean creationReservationAsync(ReservationRequestDTO request) {
@@ -93,17 +102,34 @@ public class ReservationServicesImpl implements ReservationServices {
     @Override
     public boolean validateSagaId(long idReservation, String sagaId) {
         Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        if (r == null) 
-            return false;
-        if (!sagaId.equals(r.getSagaId())) 
-            return false;
-        return true;
+        return r != null && r.getSagaId() != null && r.getSagaId().equals(sagaId);
     }
 
-    @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
-    @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
-    @Inject public void setGson(Gson gson) { this.gson = gson;  }
-    @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
+
+    @Override
+    public boolean updateReservationAndUpdateLines(ReservationWithLinesDTO reservationWithLinesDTO) {
+        Reservation r = this.entityManager.find(Reservation.class, reservationWithLinesDTO.getReservation().getId(), LockModeType.OPTIMISTIC);
+        r.setActive(reservationWithLinesDTO.getReservation().isActive());
+        r.setStatusSaga(reservationWithLinesDTO.getReservation().getStatusSaga());
+        double priceTotal = 0;
+        for (var line : reservationWithLinesDTO.getLines()) {
+             List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
+                .setParameter("flightInstanceId", line.getFlightInstanceId())
+                .setParameter("reservationId", line.getIdReservation())
+                .getResultList();
+            ReservationLine rL = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
+            rL.setActive(line.isActive());
+            rL.setFlightInstanceId(line.getFlightInstanceId());
+            rL.setPassengers(line.getPassengers());
+            rL.setPrice(line.getPrice());
+            rL.setReservationId(r);
+            priceTotal += line.getPrice() * line.getPassengers();
+            this.entityManager.merge(reservationLine);
+        }
+        r.setTotal(priceTotal);
+        this.entityManager.merge(r);
+        return true;
+    }
 
     
 

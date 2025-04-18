@@ -15,7 +15,6 @@ import business.reservationline.ReservationLIneDTO;
 import business.saga.updatereservation.qualifier.UpdateReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
-import msa.commons.event.Event;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;

@@ -131,7 +131,10 @@ public class ReservationServicesImpl implements ReservationServices {
         return true;
     }
 
-    
-
-    
+    @Override
+    public boolean cancelReservationAsync(long idReservation) {
+        this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_BEGIN_SAGA)
+                                 .commandPublisher(this.gson.toJson(idReservation));
+        return true;
+    }    
 }

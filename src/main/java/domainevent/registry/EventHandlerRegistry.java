@@ -16,6 +16,8 @@ import msa.commons.event.EventId;
 
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
+import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
+import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationRollback;
 
 @Singleton
 @Startup
@@ -25,6 +27,8 @@ public class EventHandlerRegistry {
     private CommandHandler createReservationRollbackEvent;
     private CommandHandler createReservationBeginEvent;
     private CommandHandler updateReservationBeginEvent;
+    private CommandHandler updateReservationCommitEvent;
+    private CommandHandler updateReservationRollbackEvent;
     
     @PostConstruct
     public void init(){
@@ -32,6 +36,8 @@ public class EventHandlerRegistry {
         this.handlers.put(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA, this.createReservationRollbackEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA, this.createReservationBeginEvent);        
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA, this.updateReservationBeginEvent);
+        this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_COMMIT_SAGA, this.updateReservationCommitEvent);
+        this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, this.updateReservationRollbackEvent);
     }
 
     public CommandHandler getHandler(EventId eventId) {
@@ -56,6 +62,16 @@ public class EventHandlerRegistry {
     @Inject
     public void setUpdateReservationBeginEvent(@UpdateReservationBeginQualifier CommandHandler updateReservationBeginEvent) {
         this.updateReservationBeginEvent = updateReservationBeginEvent;
+    }
+
+    @Inject
+    public void setUpdateReservationCommitEvent(@UpdateReservationByModifyReservationCommit CommandHandler updateReservationCommitEvent) {
+        this.updateReservationCommitEvent = updateReservationCommitEvent;
+    }
+
+    @Inject
+    public void setUpdateReservationRollbackEvent(@UpdateReservationByModifyReservationRollback CommandHandler updateReservationRollbackEvent) {
+        this.updateReservationRollbackEvent = updateReservationRollbackEvent;
     }
 
 }

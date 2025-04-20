@@ -7,8 +7,9 @@ import business.reservation.ReservationWithLinesDTO;
 
 public interface ReservationServices {
     boolean creationReservationAsync(ReservationRequestDTO request);
-    boolean modifyReservationAsync(UpdateResevationDTO request);
     ReservationDTO creationReservationSync(ReservationDTO reservation);
+    boolean modifyReservationAsync(UpdateResevationDTO request);
+    boolean cancelReservationAsync(long idReservation);
     boolean validateSagaId(long idReservation, String sagaId);
     boolean updateOnlyReservation(ReservationDTO reservation);
     boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);

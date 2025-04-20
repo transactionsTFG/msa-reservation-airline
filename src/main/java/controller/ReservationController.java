@@ -5,6 +5,7 @@ import javax.ws.rs.Path;
 import javax.ejb.EJB;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -42,6 +43,17 @@ public class ReservationController {
         boolean success = this.reservationServices.modifyReservationAsync(resevation);
         if (success) 
             return Response.status(Response.Status.OK).entity("La modificacion de la reserva se ha inicializado").build();
+        else 
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("No ha superado las reglas de negocio").build();
+    }
+
+    @DELETE
+    @Transactional
+    public Response cancelReservation(long idReservation) {
+        LOGGER.info("Iniciando cancelacion de reserva: {}", idReservation);
+        boolean success = this.reservationServices.cancelReservationAsync(idReservation);
+        if (success) 
+            return Response.status(Response.Status.OK).entity("La cancelacion de la reserva se ha inicializado").build();
         else 
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("No ha superado las reglas de negocio").build();
     }

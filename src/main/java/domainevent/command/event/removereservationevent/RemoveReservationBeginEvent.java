@@ -13,6 +13,7 @@ import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
+import msa.commons.microservices.reservationairline.removereservation.command.IdWithSeats;
 import msa.commons.microservices.reservationairline.removereservation.command.RemoveReservationCommand;
 import msa.commons.saga.SagaPhases;
 
@@ -34,7 +35,8 @@ public class RemoveReservationBeginEvent extends BaseHandler {
                                                              reservationWithLinesDTO.getReservation().getId(), sagaId);
         RemoveReservationCommand removeReservationCommand = new RemoveReservationCommand();
         removeReservationCommand.setIdReservation(reservationWithLinesDTO.getReservation().getId());
-        removeReservationCommand.setListIdFlightInstance(flightInstanceIds);
+        List<ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservation(flightInstanceIds, reservationWithLinesDTO.getReservation().getId());
+        removeReservationCommand.setListIdFlightInstance(reservationLines.stream().map(rL -> new IdWithSeats(rL.getFlightInstanceId(), rL.getPassengers())).toList());
         this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_REMOVE_RESERVATION, new EventData(sagaId,  List.of(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA), removeReservationCommand));
     }
     

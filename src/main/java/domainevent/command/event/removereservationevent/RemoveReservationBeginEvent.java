@@ -1,0 +1,41 @@
+package domainevent.command.event.removereservationevent;
+
+import java.util.List;
+import java.util.UUID;
+
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+
+import business.reservation.ReservationWithLinesDTO;
+import business.reservationline.ReservationLIneDTO;
+import business.saga.deletereservation.qualifier.RemoveReservationBeginQualifier;
+import domainevent.command.handler.BaseHandler;
+import domainevent.command.handler.CommandHandler;
+import msa.commons.event.EventData;
+import msa.commons.event.EventId;
+import msa.commons.microservices.reservationairline.removereservation.command.RemoveReservationCommand;
+import msa.commons.saga.SagaPhases;
+
+
+@Stateless
+@RemoveReservationBeginQualifier
+@Local(CommandHandler.class)
+public class RemoveReservationBeginEvent extends BaseHandler {
+
+    @Override
+    public void commandPublisher(String json) {
+        ReservationWithLinesDTO reservationWithLinesDTO = this.gson.fromJson(json, ReservationWithLinesDTO.class);
+        final String sagaId = UUID.randomUUID().toString();
+        reservationWithLinesDTO.getReservation().setStatusSaga(SagaPhases.STARTED);
+        reservationWithLinesDTO.getReservation().setSagaId(sagaId);
+        final List<Long> flightInstanceIds = reservationWithLinesDTO.getLines().stream().map(ReservationLIneDTO::getFlightInstanceId).toList();
+        this.reservationServices.updateOnlyReservation(reservationWithLinesDTO.getReservation());
+        this.reservationLineServices.updateReservationSagaId(flightInstanceIds, 
+                                                             reservationWithLinesDTO.getReservation().getId(), sagaId);
+        RemoveReservationCommand removeReservationCommand = new RemoveReservationCommand();
+        removeReservationCommand.setIdReservation(reservationWithLinesDTO.getReservation().getId());
+        removeReservationCommand.setListIdFlightInstance(flightInstanceIds);
+        this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_REMOVE_RESERVATION, new EventData(sagaId,  List.of(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA), removeReservationCommand));
+    }
+    
+}

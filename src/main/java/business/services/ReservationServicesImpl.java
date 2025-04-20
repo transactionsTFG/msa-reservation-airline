@@ -1,6 +1,7 @@
 package business.services;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -12,6 +13,7 @@ import com.google.gson.Gson;
 
 import business.dto.ReservationRequestDTO;
 import business.dto.modifyreservation.UpdateResevationDTO;
+import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
@@ -118,6 +120,8 @@ public class ReservationServicesImpl implements ReservationServices {
                 .setParameter("reservationId", line.getIdReservation())
                 .getResultList();
             ReservationLine rL = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
+            if(rL == null)
+                continue;
             rL.setActive(line.isActive());
             rL.setFlightInstanceId(line.getFlightInstanceId());
             rL.setPassengers(line.getPassengers());
@@ -133,8 +137,20 @@ public class ReservationServicesImpl implements ReservationServices {
 
     @Override
     public boolean cancelReservationAsync(long idReservation) {
+        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+        if (r == null || !r.isActive()) 
+            return false;
+        Set<ReservationLine> rl = r.getReservationLine();
+        ReservationWithLinesDTO rlDto = new ReservationWithLinesDTO(r.toDTO(), rl.stream().map(l -> ReservationLineMapper.INSTANCE.entityToDto(l)).toList());
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_BEGIN_SAGA)
-                                 .commandPublisher(this.gson.toJson(idReservation));
+                                 .commandPublisher(this.gson.toJson(rlDto));
         return true;
+    }
+    @Override
+    public ReservationDTO getReservationById(long idReservation) {
+        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+        if (r == null)
+            return null;
+        return r.toDTO();
     }    
 }

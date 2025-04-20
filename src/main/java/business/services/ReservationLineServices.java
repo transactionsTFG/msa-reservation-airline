@@ -12,4 +12,5 @@ public interface ReservationLineServices  {
     void updateReservationLines(List<ReservationLIneDTO> reservationLines);
     void updateReservationSagaId(List<Long> idFlightInstance, long idReservation, String sagaId);
     boolean validateSagaId(List<Long> idFlightInstance, long idReservation, String sagaId);
+    boolean removeReservation(long idReservation);
 }

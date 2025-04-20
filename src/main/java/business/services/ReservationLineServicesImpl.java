@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.management.RuntimeErrorException;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 import business.mapper.ReservationLineMapper;
+import business.reservation.Reservation;
 import business.reservationline.ReservationLIneDTO;
 import business.reservationline.ReservationLine;
 
@@ -103,6 +105,19 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
                 r.setSagaId(rL.getSagaId());
         }
 
+    }
+
+    @Override
+    public boolean removeReservation(long idReservation) {
+        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+        if (r == null) 
+            return false;
+        r.setActive(false);
+        for (ReservationLine instance : r.getReservationLine()) {
+            instance.setActive(false);
+            this.entityManager.merge(instance);
+        }
+        return true;
     }
     
 }

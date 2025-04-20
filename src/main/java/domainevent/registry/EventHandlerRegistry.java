@@ -9,6 +9,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
+import business.saga.deletereservation.qualifier.RemoveReservationBeginQualifier;
 import business.saga.updatereservation.qualifier.UpdateReservationBeginQualifier;
 import domainevent.command.handler.CommandHandler;
 
@@ -16,6 +17,8 @@ import msa.commons.event.EventId;
 
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
 import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
+import msa.commons.microservices.reservationairline.removereservation.qualifier.RemoveReservationByCommitQualifier;
+import msa.commons.microservices.reservationairline.removereservation.qualifier.RemoveReservationByRollbackQualifier;
 import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
 import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationRollback;
 
@@ -29,6 +32,9 @@ public class EventHandlerRegistry {
     private CommandHandler updateReservationBeginEvent;
     private CommandHandler updateReservationCommitEvent;
     private CommandHandler updateReservationRollbackEvent;
+    private CommandHandler removeReservationBeginEvent;
+    private CommandHandler removeReservationCommitEvent;
+    private CommandHandler removeReservationRollbackEvent;
     
     @PostConstruct
     public void init(){
@@ -38,6 +44,9 @@ public class EventHandlerRegistry {
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA, this.updateReservationBeginEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_COMMIT_SAGA, this.updateReservationCommitEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, this.updateReservationRollbackEvent);
+        this.handlers.put(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_BEGIN_SAGA, this.removeReservationBeginEvent);
+        this.handlers.put(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_COMMIT_SAGA, this.removeReservationCommitEvent);
+        this.handlers.put(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA, this.removeReservationRollbackEvent);
     }
 
     public CommandHandler getHandler(EventId eventId) {
@@ -73,5 +82,21 @@ public class EventHandlerRegistry {
     public void setUpdateReservationRollbackEvent(@UpdateReservationByModifyReservationRollback CommandHandler updateReservationRollbackEvent) {
         this.updateReservationRollbackEvent = updateReservationRollbackEvent;
     }
+
+    @Inject
+    public void setRemoveReservationBeginEvent(@RemoveReservationBeginQualifier CommandHandler removeReservationBeginEvent) {
+        this.removeReservationBeginEvent = removeReservationBeginEvent;
+    }
+
+    @Inject
+    public void setRemoveReservationCommitEvent(@RemoveReservationByCommitQualifier CommandHandler removeReservationCommitEvent) {
+        this.removeReservationCommitEvent = removeReservationCommitEvent;
+    }
+
+    @Inject
+    public void setRemoveReservationRollbackEvent(@RemoveReservationByRollbackQualifier CommandHandler removeReservationRollbackEvent) {
+        this.removeReservationRollbackEvent = removeReservationRollbackEvent;
+    }
+
 
 }

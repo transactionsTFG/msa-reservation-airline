@@ -125,7 +125,7 @@ public class ReservationServicesImpl implements ReservationServices {
                 continue;
             rL.setActive(line.isActive());
             rL.setFlightInstanceId(line.getFlightInstanceId());
-            rL.setPassengers(line.getPassengers());
+            rL.setPassengers(line.getPassengers() + rL.getPassengers());
             rL.setPrice(line.getPrice());
             rL.setReservationId(r);
             priceTotal += line.getPrice() * line.getPassengers();

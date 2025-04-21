@@ -37,6 +37,7 @@ public class ReservationController {
     }
 
     @POST
+    @Path("/modify")
     @Transactional
     public Response modifyReservation(UpdateResevationDTO resevation){
         LOGGER.info("Iniciando modificacion de reserva: {}", resevation);

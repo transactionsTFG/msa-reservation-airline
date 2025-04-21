@@ -43,13 +43,19 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
                 continue;
             IdUpdateFlightInstanceInfo id = new IdUpdateFlightInstanceInfo();
             id.setIdFlightInstance(r.getFlightInstanceId());
-            id.setNumberSeats(f.getNumberSeats());
-            if (f.getNumberSeats() > r.getPassengers()) 
+            if (f.getNumberSeats() > r.getPassengers()){
                 id.setAction(Action.ADD_SEATS);
-            else if(f.getNumberSeats() == 0) 
+                id.setNumberSeats(f.getNumberSeats() - r.getPassengers());
+            }
+            else if(f.getNumberSeats() == 0) {
+                id.setNumberSeats(r.getPassengers());
                 id.setAction(Action.REMOVE_FLIGHT);
-            else if(f.getNumberSeats() < r.getPassengers()) 
+            }
+            else if(f.getNumberSeats() < r.getPassengers()) {
+                id.setNumberSeats(r.getPassengers() - f.getNumberSeats());
                 id.setAction(Action.REMOVE_SEATS);
+            }
+            flightInfo.add(id);
         }
         command.setFlightInstanceInfo(flightInfo);
         this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_MODIFY_RESERVATION, new EventData(sagaId, List.of(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA), command));

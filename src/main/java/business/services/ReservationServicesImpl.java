@@ -83,6 +83,7 @@ public class ReservationServicesImpl implements ReservationServices {
             reservationLine.setPassengers(line.getPassengers());
             reservationLine.setPrice(line.getPrice());
             reservationLine.setReservationId(r);
+            reservationLine.setSagaId(line.getSagaId());
             priceTotal += line.getPrice() * line.getPassengers();
             this.entityManager.merge(reservationLine);
         }

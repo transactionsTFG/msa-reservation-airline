@@ -28,7 +28,8 @@ public class UpdateReservationCommitEvent extends BaseHandler {
         EventData eventData = EventData.fromJson(json, UpdateReservationCommand.class);
         UpdateReservationCommand c = (UpdateReservationCommand) eventData.getData();
         List<Long> listFlightInstances = c.getFlightInstanceInfo().stream().map(IdUpdateFlightInstanceInfo::getIdFlightInstance).toList();
-        if (!this.reservationLineServices.validateSagaId(listFlightInstances, c.getIdReservation(), eventData.getSagaId())) {
+        if (!this.reservationLineServices.validateSagaId(listFlightInstances, c.getIdReservation(), eventData.getSagaId()) || 
+            !this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
             this.jmsEventPublisher.publish(EventId.FLIGHT_UPDATE_FLIGHT_BY_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, eventData);
         } else {
             List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
@@ -41,10 +42,8 @@ public class UpdateReservationCommitEvent extends BaseHandler {
                 l.setSagaId(eventData.getSagaId());
                 return l;
             }).toList();
-            ReservationDTO buildReservation = new ReservationDTO();
-            buildReservation.setId(c.getIdReservation());
+            ReservationDTO buildReservation = this.reservationServices.getReservationById(c.getIdReservation());
             buildReservation.setStatusSaga(SagaPhases.COMPLETED);
-            buildReservation.setActive(true);
             ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
                                                                                         .reservation(buildReservation)
                                                                                         .lines(buildReservationLine)

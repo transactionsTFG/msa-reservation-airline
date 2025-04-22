@@ -76,6 +76,7 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
             if (r == null || !r.isActive()) 
                 throw new RuntimeException("ReservationLine not found or inactive for idFlightInstance: " + idFlightInstance1 + " and idReservation: " + idReservation);
             r.setSagaId(sagaId);
+            this.entityManager.merge(r);
         }
     }
 

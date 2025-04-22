@@ -114,7 +114,7 @@ public class ReservationServicesImpl implements ReservationServices {
         Reservation r = this.entityManager.find(Reservation.class, reservationWithLinesDTO.getReservation().getId(), LockModeType.OPTIMISTIC);
         r.setActive(reservationWithLinesDTO.getReservation().isActive());
         r.setStatusSaga(reservationWithLinesDTO.getReservation().getStatusSaga());
-        double priceTotal = 0;
+        double priceTotal = r.getTotal();
         for (var line : reservationWithLinesDTO.getLines()) {
              List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
                 .setParameter("flightInstanceId", line.getFlightInstanceId())
@@ -153,5 +153,5 @@ public class ReservationServicesImpl implements ReservationServices {
         if (r == null)
             return null;
         return r.toDTO();
-    }    
+    }
 }

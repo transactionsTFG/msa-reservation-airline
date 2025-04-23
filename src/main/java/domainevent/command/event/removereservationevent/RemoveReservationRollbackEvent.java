@@ -21,7 +21,7 @@ public class RemoveReservationRollbackEvent extends BaseHandler {
     public void commandPublisher(String json) {
         EventData eventData = EventData.fromJson(json, RemoveReservationCommand.class);
         RemoveReservationCommand c = (RemoveReservationCommand) eventData.getData();    
-        ReservationDTO buildReservation = this.reservationServices.getReservationById(c.getIdReservation());
+        ReservationDTO buildReservation = this.reservationServices.findById(c.getIdReservation());
         buildReservation.setStatusSaga(SagaPhases.CANCELLED);
         buildReservation.setActive(true);
         this.reservationServices.updateOnlyReservation(buildReservation);

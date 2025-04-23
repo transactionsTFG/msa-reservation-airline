@@ -18,4 +18,11 @@ public class ReservationDTO {
 	private long customerId;
 	private SagaPhases statusSaga;
 	private String sagaId;
+
+	public ReservationDTO(boolean active, long customerId, SagaPhases statusSaga, String sagaId) {
+		this.active = active;
+		this.customerId = customerId;
+		this.statusSaga = statusSaga;
+		this.sagaId = sagaId;
+	}
 }

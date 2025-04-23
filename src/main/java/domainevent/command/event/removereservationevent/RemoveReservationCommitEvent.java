@@ -22,7 +22,7 @@ public class RemoveReservationCommitEvent extends BaseHandler {
         EventData eventData = EventData.fromJson(json, RemoveReservationCommand.class);
         RemoveReservationCommand c = (RemoveReservationCommand) eventData.getData();
         if (this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
-            ReservationDTO reservation = this.reservationServices.getReservationById(c.getIdReservation());
+            ReservationDTO reservation = this.reservationServices.findById(c.getIdReservation());
             reservation.setStatusSaga(SagaPhases.COMPLETED);
             this.reservationLineServices.removeReservation(reservation);
         }

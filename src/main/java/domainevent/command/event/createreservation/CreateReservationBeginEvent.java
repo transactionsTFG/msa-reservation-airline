@@ -35,13 +35,9 @@ public class CreateReservationBeginEvent extends BaseHandler {
     public void commandPublisher(String json) {
         ReservationRequestDTO r = this.gson.fromJson(json, ReservationRequestDTO.class);
         final String sagaId = UUID.randomUUID().toString(); 
-        ReservationDTO reservationDTO = new ReservationDTO();
-        reservationDTO.setActive(false);
-        reservationDTO.setCustomerId(-1);
-        reservationDTO.setStatusSaga(SagaPhases.STARTED);
-        reservationDTO.setSagaId(sagaId);
-        reservationDTO = this.reservationServices.creationReservationSync(reservationDTO);
-
+        ReservationDTO reservationDTO = new ReservationDTO(false, -1, SagaPhases.STARTED, sagaId);
+        reservationDTO = this.reservationServices.creationReservation(reservationDTO);
+        
         Map<Long, Integer> grouped = r.getFlightInstanceSeats().stream()
                                     .collect(Collectors.toMap(
                                         FlightInstanceSeatsDTO::getIdFlightInstance,

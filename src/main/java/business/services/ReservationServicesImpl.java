@@ -1,64 +1,34 @@
 package business.services;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
-import com.google.gson.Gson;
-
-import business.dto.ReservationRequestDTO;
-import business.dto.modifyreservation.UpdateResevationDTO;
 import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLine;
-import domainevent.registry.EventHandlerRegistry;
+import integration.dao.reservation.ReservationDAO;
 import integration.dao.reservationline.ReservationLineDAO;
-import msa.commons.event.EventId;
-import rules.RulesBusinessCustomer;
 
 @Stateless
 public class ReservationServicesImpl implements ReservationServices {
     private EntityManager entityManager;
-    private EventHandlerRegistry eventHandlerRegistry;
-    private Gson gson;
-    private RulesBusinessCustomer rulesBusinessCustomer;
     private ReservationLineDAO reservationLineDAO;
+    private ReservationDAO reservationDAO;
     
     @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
-    @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
-    @Inject public void setGson(Gson gson) { this.gson = gson;  }
-    @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
     @Inject public void setReservationLineDAO(ReservationLineDAO reservationLineDAO) { this.reservationLineDAO = reservationLineDAO; }
+    @Inject public void setReservationDAO(ReservationDAO reservationDAO) { this.reservationDAO = reservationDAO; }
 
     @Override
-    public boolean creationReservationAsync(ReservationRequestDTO request) {
-        if (!this.rulesBusinessCustomer.isValid(request.getCustomer())) 
-            return false;
-    
-        this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)
-                                 .commandPublisher(this.gson.toJson(request));
-        return true;
-    }
-
-    @Override
-    public ReservationDTO creationReservationSync(ReservationDTO dto) {
-        Reservation r = new Reservation();
-        r.setActive(dto.isActive());
-        r.setStatusSaga(dto.getStatusSaga());
-        r.setCustomerId(dto.getCustomerId());
-        r.setTotal(dto.getTotal());
-        r.setSagaId(dto.getSagaId());
-        this.entityManager.persist(r);
-        this.entityManager.flush();
-        return r.toDTO();
+    public ReservationDTO creationReservation(ReservationDTO dto) {
+        return this.reservationDAO.save(dto).toDTO();
     }  
 
     @Override
@@ -93,29 +63,22 @@ public class ReservationServicesImpl implements ReservationServices {
         return true;
     }
 
-    @Override
-    public boolean modifyReservationAsync(UpdateResevationDTO request) {
-        Reservation r = this.entityManager.find(Reservation.class, request.getIdReservation(), LockModeType.OPTIMISTIC);
-        if (r == null || !r.isActive()) 
-            return false;
-        this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA)
-                                 .commandPublisher(this.gson.toJson(request));
-        return true;
-    }
-    
+ 
     @Override
     public boolean validateSagaId(long idReservation, String sagaId) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        return r != null && r.getSagaId() != null && r.getSagaId().equals(sagaId);
+        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
+        return r.isPresent() && r.get().getSagaId() != null && r.get().getSagaId().equals(sagaId);
     }
 
 
     @Override
     public boolean updateReservationAndUpdateLines(ReservationWithLinesDTO reservationWithLinesDTO) {
-        Reservation r = this.entityManager.find(Reservation.class, reservationWithLinesDTO.getReservation().getId(), LockModeType.OPTIMISTIC);
-        r.setActive(reservationWithLinesDTO.getReservation().isActive());
-        r.setStatusSaga(reservationWithLinesDTO.getReservation().getStatusSaga());
-        double priceTotal = r.getTotal();
+        Optional<Reservation> r = this.reservationDAO.findById(reservationWithLinesDTO.getReservation().getId());
+        if (r.isEmpty()) 
+            return false;
+        r.get().setActive(reservationWithLinesDTO.getReservation().isActive());
+        r.get().setStatusSaga(reservationWithLinesDTO.getReservation().getStatusSaga());
+        double priceTotal = r.get().getTotal();
         for (var line : reservationWithLinesDTO.getLines()) {
             Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(line.getFlightInstanceId(), line.getIdReservation());
             if(reservationLineOpt.isEmpty())
@@ -125,33 +88,20 @@ public class ReservationServicesImpl implements ReservationServices {
             rL.setFlightInstanceId(line.getFlightInstanceId());
             rL.setPassengers(line.getPassengers() + rL.getPassengers());
             rL.setPrice(line.getPrice());
-            rL.setReservationId(r);
+            rL.setReservationId(r.get());
             priceTotal += line.getPrice() * line.getPassengers();
             this.entityManager.merge(rL);
         }
-        r.setTotal(priceTotal);
+        r.get().setTotal(priceTotal);
         this.entityManager.merge(r);
         return true;
     }
+    
+    @Override
+    public ReservationDTO findById(long idReservation) {
+        return this.reservationDAO.findById(idReservation).map(Reservation::toDTO).orElse(null);
+    }
 
-    @Override
-    public boolean cancelReservationAsync(long idReservation) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        if (r == null || !r.isActive()) 
-            return false;
-        Set<ReservationLine> rl = r.getReservationLine();
-        ReservationWithLinesDTO rlDto = new ReservationWithLinesDTO(r.toDTO(), rl.stream().map(l -> ReservationLineMapper.INSTANCE.entityToDto(l)).toList());
-        this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_BEGIN_SAGA)
-                                 .commandPublisher(this.gson.toJson(rlDto));
-        return true;
-    }
-    @Override
-    public ReservationDTO getReservationById(long idReservation) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        if (r == null)
-            return null;
-        return r.toDTO();
-    }
     @Override
     public boolean updateSage(long idReservation, String sagaId) {
         Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
@@ -161,4 +111,25 @@ public class ReservationServicesImpl implements ReservationServices {
         this.entityManager.merge(r);
         return true;
     }
+    
+    @Override
+    public boolean existsById(long idReservation) {
+        return this.findById(idReservation) != null;
+    }
+
+    @Override
+    public boolean isActiveReservation(long idReservation) {
+        ReservationDTO r = this.findById(idReservation);
+        return r != null && r.isActive();
+    }
+
+    @Override
+    public ReservationWithLinesDTO getReservationWithLinesById(long idReservation) {
+        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
+        if(r.isEmpty())
+            return null;
+        Set<ReservationLine> rl = r.get().getReservationLine();
+        return new ReservationWithLinesDTO(r.get().toDTO(), rl.stream().map(ReservationLineMapper.INSTANCE::entityToDto).toList());
+    }
+
 }

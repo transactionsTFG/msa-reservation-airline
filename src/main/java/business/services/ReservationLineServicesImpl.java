@@ -88,4 +88,16 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
             return map;
     }
     
+    @Override
+    public ReservationLIneDTO findById(long idFlightInstance, long idReservation) {
+        return this.reservationLineDAO.findByFlightInstanceIdAndReservationId(idFlightInstance, idReservation)
+                                        .map(ReservationLineMapper.INSTANCE::entityToDto)
+                                        .orElse(null);
+    }
+    
+    @Override
+    public boolean existsById(long idFlightInstance, long idReservation) {
+        return this.findById(idFlightInstance, idReservation) != null;
+    }
+    
 }

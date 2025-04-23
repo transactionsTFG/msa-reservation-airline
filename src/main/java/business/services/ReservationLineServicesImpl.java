@@ -78,5 +78,22 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
         }
         return true;
     }
+
+    @Override
+    public Map<Long, ReservationLIneDTO> findByIdReservationToMapIgnoreActive(List<Long> idFlightInstance,
+            long idReservation) {
+            Map<Long, ReservationLIneDTO> map = new HashMap<>();
+            for (long idFlightInstance1 : idFlightInstance) {
+                List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
+                    .setParameter("flightInstanceId", idFlightInstance1)
+                    .setParameter("reservationId", idReservation)
+                    .getResultList();
+                ReservationLine r = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
+                if (r == null) 
+                    continue;
+                map.put(r.getFlightInstanceId(), ReservationLineMapper.INSTANCE.entityToDto(r));
+            }
+            return map;
+    }
     
 }

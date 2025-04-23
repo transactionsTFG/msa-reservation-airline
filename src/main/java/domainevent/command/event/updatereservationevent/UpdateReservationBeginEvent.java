@@ -31,7 +31,7 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
     public void commandPublisher(String json) {
         UpdateResevationDTO u = this.gson.fromJson(json, UpdateResevationDTO.class);
         final List<Long> flightInstanceIds = u.getFlightInstanceSeats().stream().map(FlightInstanceSeatsDTO::getIdFlightInstance).toList();
-        Map<Long, ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservationToMap(flightInstanceIds, 
+        Map<Long, ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservationToMapIgnoreActive(flightInstanceIds, 
                                                                                                                u.getIdReservation());
         final String sagaId = UUID.randomUUID().toString();
         this.reservationServices.updateSage(u.getIdReservation(), sagaId);

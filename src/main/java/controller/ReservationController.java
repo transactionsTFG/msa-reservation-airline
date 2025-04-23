@@ -50,6 +50,7 @@ public class ReservationController {
 
     @DELETE
     @Transactional
+    @Path("/{idReservation}")
     public Response cancelReservation(long idReservation) {
         LOGGER.info("Iniciando cancelacion de reserva: {}", idReservation);
         boolean success = this.reservationServices.cancelReservationAsync(idReservation);

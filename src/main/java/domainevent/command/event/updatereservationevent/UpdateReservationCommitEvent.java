@@ -34,7 +34,7 @@ public class UpdateReservationCommitEvent extends BaseHandler {
             List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
                 ReservationLIneDTO l = new ReservationLIneDTO();
                 l.setFlightInstanceId(info.getIdFlightInstance());
-                l.setActive(true);
+                l.setActive(!info.getAction().equals(Action.REMOVE_FLIGHT));
                 l.setIdReservation(c.getIdReservation());
                 l.setPassengers(info.getAction().equals(Action.ADD_SEATS) ? info.getNumberSeats() :  -info.getNumberSeats());
                 l.setPrice(info.getPrice());

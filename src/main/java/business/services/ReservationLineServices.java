@@ -9,5 +9,6 @@ public interface ReservationLineServices  {
     boolean existsById(List<Long> idFlightInstance, long idReservation);
     List<ReservationLIneDTO> findByIdReservation(List<Long> idFlightInstance, long idReservation);
     Map<Long, ReservationLIneDTO> findByIdReservationToMap(List<Long> idFlightInstance, long idReservation);
+    Map<Long, ReservationLIneDTO> findByIdReservationToMapIgnoreActive(List<Long> idFlightInstance, long idReservation);
     boolean removeReservation(long idReservation);
 }

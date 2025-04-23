@@ -52,7 +52,7 @@ public class UpdateReservationRollbackEvent extends BaseHandler {
                                                                                     .reservation(buildReservation)
                                                                                     .lines(buildReservationLine)
                                                                                     .build();
-        this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
+        this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
         this.jmsEventPublisher.publish(EventId.FLIGHT_UPDATE_FLIGHT_BY_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, eventData);
     }
     

@@ -4,34 +4,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
+import java.util.Optional;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
-import javax.transaction.Transactional;
 
 import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
 import business.reservationline.ReservationLIneDTO;
 import business.reservationline.ReservationLine;
-import msa.commons.saga.SagaPhases;
+import integration.dao.reservationline.ReservationLineDAO;
+
 
 @Stateless
 public class ReservationLineServicesImpl implements ReservationLineServices {
     private EntityManager entityManager;
+    private ReservationLineDAO reservationLineDAO;
     @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
+    @Inject public void setReservationLineDAO(ReservationLineDAO reservationLineDAO) { this.reservationLineDAO = reservationLineDAO;}
 
     @Override
     public boolean existsById(List<Long> ids, long idReservation) {
         for(long idFlightInstance: ids) {
-            List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
-                .setParameter("flightInstanceId", idFlightInstance)
-                .setParameter("reservationId", idReservation)
-                .getResultList();
-            if (reservationLine.isEmpty() || !reservationLine.get(0).isActive()) 
+            Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(idFlightInstance, idReservation);
+            if (reservationLineOpt.isEmpty() || !reservationLineOpt.get().isActive()) 
                 return false;
         }
         return true;
@@ -41,29 +40,22 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
     public List<ReservationLIneDTO> findByIdReservation(List<Long> idFlightInstance, long idReservation) {
         List<ReservationLIneDTO> reservationLIneDTOs = new ArrayList<>(); 
         for (long idFlightInstance1 : idFlightInstance) {
-            List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
-                .setParameter("flightInstanceId", idFlightInstance1)
-                .setParameter("reservationId", idReservation)
-                .getResultList();
-            if (reservationLine.isEmpty() || !reservationLine.get(0).isActive()) 
+            Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(idFlightInstance1, idReservation);
+            if (reservationLineOpt.isEmpty() || !reservationLineOpt.get().isActive()) 
                 continue;
-            reservationLIneDTOs.add(ReservationLineMapper.INSTANCE.entityToDto(reservationLine.get(0)));
+            reservationLIneDTOs.add(ReservationLineMapper.INSTANCE.entityToDto(reservationLineOpt.get()));
         }
         return reservationLIneDTOs;
-    }
+    } 
 
     @Override
     public Map<Long, ReservationLIneDTO> findByIdReservationToMap(List<Long> idFlightInstance, long idReservation) {
         Map<Long, ReservationLIneDTO> map = new HashMap<>();
         for (long idFlightInstance1 : idFlightInstance) {
-            List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
-                .setParameter("flightInstanceId", idFlightInstance1)
-                .setParameter("reservationId", idReservation)
-                .getResultList();
-            ReservationLine r = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
-            if (r == null || !r.isActive()) 
+            Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(idFlightInstance1, idReservation);
+            if (reservationLineOpt.isEmpty() || !reservationLineOpt.get().isActive()) 
                 continue;
-            map.put(r.getFlightInstanceId(), ReservationLineMapper.INSTANCE.entityToDto(r));
+            map.put(reservationLineOpt.get().getFlightInstanceId(), ReservationLineMapper.INSTANCE.entityToDto(reservationLineOpt.get()));
         }
         return map;
     }
@@ -88,14 +80,10 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
             long idReservation) {
             Map<Long, ReservationLIneDTO> map = new HashMap<>();
             for (long idFlightInstance1 : idFlightInstance) {
-                List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
-                    .setParameter("flightInstanceId", idFlightInstance1)
-                    .setParameter("reservationId", idReservation)
-                    .getResultList();
-                ReservationLine r = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
-                if (r == null) 
+                Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(idFlightInstance1, idReservation);
+                if (reservationLineOpt.isEmpty()) 
                     continue;
-                map.put(r.getFlightInstanceId(), ReservationLineMapper.INSTANCE.entityToDto(r));
+                map.put(reservationLineOpt.get().getFlightInstanceId(), ReservationLineMapper.INSTANCE.entityToDto(reservationLineOpt.get()));
             }
             return map;
     }

@@ -1,6 +1,7 @@
 package business.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.ejb.EJB;
@@ -19,6 +20,7 @@ import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLine;
 import domainevent.registry.EventHandlerRegistry;
+import integration.dao.reservationline.ReservationLineDAO;
 import msa.commons.event.EventId;
 import rules.RulesBusinessCustomer;
 
@@ -28,13 +30,13 @@ public class ReservationServicesImpl implements ReservationServices {
     private EventHandlerRegistry eventHandlerRegistry;
     private Gson gson;
     private RulesBusinessCustomer rulesBusinessCustomer;
-
+    private ReservationLineDAO reservationLineDAO;
     
     @Inject public void setEntityManager(EntityManager entityManager) { this.entityManager = entityManager;}
     @EJB public void setCommandHandlerRegistry(EventHandlerRegistry eventHandlerRegistry) { this.eventHandlerRegistry = eventHandlerRegistry; }
     @Inject public void setGson(Gson gson) { this.gson = gson;  }
     @Inject public void setRulesBusinessCustomer(RulesBusinessCustomer rulesBusinessCustomer) { this.rulesBusinessCustomer = rulesBusinessCustomer; }
-
+    @Inject public void setReservationLineDAO(ReservationLineDAO reservationLineDAO) { this.reservationLineDAO = reservationLineDAO; }
 
     @Override
     public boolean creationReservationAsync(ReservationRequestDTO request) {
@@ -115,13 +117,10 @@ public class ReservationServicesImpl implements ReservationServices {
         r.setStatusSaga(reservationWithLinesDTO.getReservation().getStatusSaga());
         double priceTotal = r.getTotal();
         for (var line : reservationWithLinesDTO.getLines()) {
-             List<ReservationLine> reservationLine = this.entityManager.createNamedQuery("ReservationLine.findByFlightInstanceIdAndReservationId", ReservationLine.class)
-                .setParameter("flightInstanceId", line.getFlightInstanceId())
-                .setParameter("reservationId", line.getIdReservation())
-                .getResultList();
-            ReservationLine rL = (reservationLine.isEmpty()) ? null : reservationLine.get(0);    
-            if(rL == null)
+            Optional<ReservationLine> reservationLineOpt = this.reservationLineDAO.findByFlightInstanceIdAndReservationId(line.getFlightInstanceId(), line.getIdReservation());
+            if(reservationLineOpt.isEmpty())
                 continue;
+            ReservationLine rL = reservationLineOpt.get();
             rL.setActive(line.isActive());
             rL.setFlightInstanceId(line.getFlightInstanceId());
             rL.setPassengers(line.getPassengers() + rL.getPassengers());

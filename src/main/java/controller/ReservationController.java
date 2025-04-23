@@ -1,9 +1,10 @@
 package controller;
 
 import javax.ws.rs.Path;
-
+import javax.ws.rs.PathParam;
 import javax.ejb.EJB;
 import javax.transaction.Transactional;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -51,7 +52,7 @@ public class ReservationController {
     @DELETE
     @Transactional
     @Path("/{idReservation}")
-    public Response cancelReservation(long idReservation) {
+    public Response cancelReservation(@PathParam("idReservation") long idReservation) {
         LOGGER.info("Iniciando cancelacion de reserva: {}", idReservation);
         boolean success = this.reservationServices.cancelReservationAsync(idReservation);
         if (success) 

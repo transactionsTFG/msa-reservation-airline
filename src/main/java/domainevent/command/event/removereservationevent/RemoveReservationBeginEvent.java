@@ -29,6 +29,7 @@ public class RemoveReservationBeginEvent extends BaseHandler {
         final String sagaId = UUID.randomUUID().toString();
         reservationWithLinesDTO.getReservation().setStatusSaga(SagaPhases.STARTED);
         reservationWithLinesDTO.getReservation().setSagaId(sagaId);
+        this.reservationServices.updateSage(reservationWithLinesDTO.getReservation().getId(), sagaId);
         final List<Long> flightInstanceIds = reservationWithLinesDTO.getLines().stream().map(ReservationLIneDTO::getFlightInstanceId).toList();
         this.reservationServices.updateOnlyReservation(reservationWithLinesDTO.getReservation());
         RemoveReservationCommand removeReservationCommand = new RemoveReservationCommand();

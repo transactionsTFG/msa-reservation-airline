@@ -94,7 +94,7 @@ public class ReservationServicesImpl implements ReservationServices {
     @Override
     public boolean modifyReservationAsync(UpdateResevationDTO request) {
         Reservation r = this.entityManager.find(Reservation.class, request.getIdReservation(), LockModeType.OPTIMISTIC);
-        if (r == null) 
+        if (r == null || !r.isActive()) 
             return false;
         this.eventHandlerRegistry.getHandler(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA)
                                  .commandPublisher(this.gson.toJson(request));

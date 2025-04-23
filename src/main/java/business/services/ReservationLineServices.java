@@ -3,6 +3,7 @@ package business.services;
 import java.util.List;
 import java.util.Map;
 
+import business.reservation.ReservationDTO;
 import business.reservationline.ReservationLIneDTO;
 
 public interface ReservationLineServices  { 
@@ -10,5 +11,5 @@ public interface ReservationLineServices  {
     List<ReservationLIneDTO> findByIdReservation(List<Long> idFlightInstance, long idReservation);
     Map<Long, ReservationLIneDTO> findByIdReservationToMap(List<Long> idFlightInstance, long idReservation);
     Map<Long, ReservationLIneDTO> findByIdReservationToMapIgnoreActive(List<Long> idFlightInstance, long idReservation);
-    boolean removeReservation(long idReservation);
+    boolean removeReservation(ReservationDTO reservationDTO);
 }

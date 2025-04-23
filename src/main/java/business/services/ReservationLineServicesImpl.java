@@ -13,8 +13,10 @@ import javax.persistence.LockModeType;
 
 import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
+import business.reservation.ReservationDTO;
 import business.reservationline.ReservationLIneDTO;
 import business.reservationline.ReservationLine;
+import msa.commons.saga.SagaPhases;
 
 @Stateless
 public class ReservationLineServicesImpl implements ReservationLineServices {
@@ -67,10 +69,11 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
 
 
     @Override
-    public boolean removeReservation(long idReservation) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+    public boolean removeReservation(ReservationDTO reservation) {
+        Reservation r = this.entityManager.find(Reservation.class, reservation.getId(), LockModeType.OPTIMISTIC);
         if (r == null) 
             return false;
+        r.setStatusSaga(r.getStatusSaga());
         r.setActive(false);
         for (ReservationLine instance : r.getReservationLine()) {
             instance.setActive(false);

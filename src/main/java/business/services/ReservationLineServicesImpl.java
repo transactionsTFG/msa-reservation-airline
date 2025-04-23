@@ -14,6 +14,7 @@ import javax.persistence.LockModeType;
 import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
 import business.reservation.ReservationDTO;
+import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLIneDTO;
 import business.reservationline.ReservationLine;
 import integration.dao.reservationline.ReservationLineDAO;
@@ -94,7 +95,6 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
                                         .map(ReservationLineMapper.INSTANCE::entityToDto)
                                         .orElse(null);
     }
-    
     @Override
     public boolean existsById(long idFlightInstance, long idReservation) {
         return this.findById(idFlightInstance, idReservation) != null;

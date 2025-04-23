@@ -15,7 +15,7 @@ public abstract class BaseHandler implements CommandHandler {
     protected IJMSEventPublisher jmsEventPublisher;
     protected Gson gson;
     @EJB
-    public void setTypeUserServices(ReservationServices reservationServices) {
+    public void setReservationServices(ReservationServices reservationServices) {
         this.reservationServices = reservationServices;
     }
     

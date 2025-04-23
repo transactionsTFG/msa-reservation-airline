@@ -2,11 +2,14 @@ package business.reservationline;
 
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -23,19 +26,21 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(ReservationLineId.class)
 @Table(name = "reservation_line")
 @NamedQuery(name = "ReservationLine.findByFlightInstanceIdAndReservationId",
             query = "SELECT rl FROM ReservationLine rl WHERE rl.flightInstanceId = :flightInstanceId AND rl.reservationId.id = :reservationId")
 public class ReservationLine {
     
-    @Id
-    @OneToOne(optional = false)
+    @EmbeddedId
+    private ReservationLineId id;
+
+    @ManyToOne(optional = false)
+    @MapsId("reservationId")
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     private Reservation reservationId;
 
-    @Id
     @Column(nullable = false, name = "flightinstance_id")
+    @MapsId("flightInstanceId") 
     private long flightInstanceId;
 
     @Column(nullable = false, name = "is_active")

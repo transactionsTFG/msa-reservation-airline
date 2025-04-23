@@ -93,7 +93,7 @@ public class ReservationServicesImpl implements ReservationServices {
             this.entityManager.merge(rL);
         }
         r.get().setTotal(priceTotal);
-        this.entityManager.merge(r);
+        this.entityManager.merge(r.get());
         return true;
     }
     

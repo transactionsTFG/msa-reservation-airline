@@ -9,6 +9,7 @@
         <properties>
             <property name="javax.persistence.jtaDataSource" value="jdbc/reservation" />
             <property name="javax.persistence.schema-generation.database.action" value="create-or-extend-tables" />
+            <property name="eclipselink.cache.shared.default" value="false" />
         </properties>
     </persistence-unit>
 </persistence>

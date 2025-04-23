@@ -10,6 +10,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.transaction.Transactional;
 
 import business.mapper.ReservationLineMapper;
 import business.reservation.Reservation;
@@ -73,7 +74,7 @@ public class ReservationLineServicesImpl implements ReservationLineServices {
         Reservation r = this.entityManager.find(Reservation.class, reservation.getId(), LockModeType.OPTIMISTIC);
         if (r == null) 
             return false;
-        r.setStatusSaga(r.getStatusSaga());
+        r.setStatusSaga(reservation.getStatusSaga());
         r.setActive(false);
         for (ReservationLine instance : r.getReservationLine()) {
             instance.setActive(false);

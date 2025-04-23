@@ -15,7 +15,6 @@ import msa.commons.event.EventData;
 import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
 import msa.commons.microservices.reservationairline.updatereservation.model.Action;
-import msa.commons.microservices.reservationairline.updatereservation.model.IdUpdateFlightInstanceInfo;
 import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
 import msa.commons.saga.SagaPhases;
 

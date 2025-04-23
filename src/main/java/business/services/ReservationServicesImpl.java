@@ -83,7 +83,6 @@ public class ReservationServicesImpl implements ReservationServices {
             reservationLine.setPassengers(line.getPassengers());
             reservationLine.setPrice(line.getPrice());
             reservationLine.setReservationId(r);
-            reservationLine.setSagaId(line.getSagaId());
             priceTotal += line.getPrice() * line.getPassengers();
             this.entityManager.merge(reservationLine);
         }
@@ -153,5 +152,14 @@ public class ReservationServicesImpl implements ReservationServices {
         if (r == null)
             return null;
         return r.toDTO();
+    }
+    @Override
+    public boolean updateSage(long idReservation, String sagaId) {
+        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
+        if (r == null) 
+            return false;
+        r.setSagaId(sagaId);
+        this.entityManager.merge(r);
+        return true;
     }
 }

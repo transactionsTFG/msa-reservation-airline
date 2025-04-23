@@ -21,7 +21,6 @@ import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
 import msa.commons.microservices.reservationairline.updatereservation.model.Action;
 import msa.commons.microservices.reservationairline.updatereservation.model.IdUpdateFlightInstanceInfo;
-import msa.commons.saga.SagaPhases;
 
 @Stateless
 @UpdateReservationBeginQualifier
@@ -35,17 +34,13 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
         Map<Long, ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservationToMap(flightInstanceIds, 
                                                                                                                u.getIdReservation());
         final String sagaId = UUID.randomUUID().toString();
-        ReservationDTO reservationDTO = this.reservationServices.getReservationById(u.getIdReservation());
-        reservationDTO.setSagaId(sagaId);
-        reservationDTO.setStatusSaga(SagaPhases.STARTED);
-        this.reservationServices.updateOnlyReservation(reservationDTO);
-        this.reservationLineServices.updateReservationSagaId(flightInstanceIds, u.getIdReservation(), sagaId);
+        this.reservationServices.updateSage(u.getIdReservation(), sagaId);
         UpdateReservationCommand command = new UpdateReservationCommand();
         command.setIdReservation(u.getIdReservation());
         List<IdUpdateFlightInstanceInfo> flightInfo = new ArrayList<>();
         for(FlightInstanceSeatsDTO f : u.getFlightInstanceSeats()) {
             ReservationLIneDTO r = reservationLines.get(f.getIdFlightInstance());
-            if(r == null)
+            if(r == null || r.getPassengers() == f.getNumberSeats())
                 continue;
             IdUpdateFlightInstanceInfo id = new IdUpdateFlightInstanceInfo();
             id.setIdFlightInstance(r.getFlightInstanceId());

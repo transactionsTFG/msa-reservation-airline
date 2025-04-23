@@ -39,7 +39,6 @@ public class CreateReservationCommmitEvent extends BaseHandler {
                 l.setIdReservation(c.getIdReservation());
                 l.setPassengers(info.getNumberSeats());
                 l.setPrice(info.getPrice());
-                l.setSagaId(eventData.getSagaId());
                 return l;
             }).toList();
             ReservationDTO buildReservation = new ReservationDTO();

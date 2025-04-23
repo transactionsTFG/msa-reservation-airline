@@ -43,9 +43,6 @@ public class ReservationLine {
 
     @Column(nullable = false, name = "passenger_count")
     private int passengers;
-
-    @Column(name = "saga_id", nullable = false)
-    private String sagaId;
     
     @Column(nullable = false, name = "price")
     private double price;

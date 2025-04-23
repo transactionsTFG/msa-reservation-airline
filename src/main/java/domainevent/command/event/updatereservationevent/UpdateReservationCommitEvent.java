@@ -14,6 +14,7 @@ import domainevent.command.handler.CommandHandler;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
 import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
+import msa.commons.microservices.reservationairline.updatereservation.model.Action;
 import msa.commons.microservices.reservationairline.updatereservation.model.IdUpdateFlightInstanceInfo;
 import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
 import msa.commons.saga.SagaPhases;
@@ -27,9 +28,7 @@ public class UpdateReservationCommitEvent extends BaseHandler {
     public void commandPublisher(String json) {
         EventData eventData = EventData.fromJson(json, UpdateReservationCommand.class);
         UpdateReservationCommand c = (UpdateReservationCommand) eventData.getData();
-        List<Long> listFlightInstances = c.getFlightInstanceInfo().stream().map(IdUpdateFlightInstanceInfo::getIdFlightInstance).toList();
-        if (!this.reservationLineServices.validateSagaId(listFlightInstances, c.getIdReservation(), eventData.getSagaId()) || 
-            !this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
+        if (!this.reservationServices.validateSagaId(c.getIdReservation(), eventData.getSagaId())) {
             this.jmsEventPublisher.publish(EventId.FLIGHT_UPDATE_FLIGHT_BY_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, eventData);
         } else {
             List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
@@ -37,9 +36,8 @@ public class UpdateReservationCommitEvent extends BaseHandler {
                 l.setFlightInstanceId(info.getIdFlightInstance());
                 l.setActive(true);
                 l.setIdReservation(c.getIdReservation());
-                l.setPassengers(info.getNumberSeats());
+                l.setPassengers(info.getAction().equals(Action.ADD_SEATS) ? info.getNumberSeats() :  -info.getNumberSeats());
                 l.setPrice(info.getPrice());
-                l.setSagaId(eventData.getSagaId());
                 return l;
             }).toList();
             ReservationDTO buildReservation = this.reservationServices.getReservationById(c.getIdReservation());

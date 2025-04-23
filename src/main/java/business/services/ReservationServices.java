@@ -11,6 +11,7 @@ public interface ReservationServices {
     ReservationDTO getReservationById(long idReservation);
     boolean modifyReservationAsync(UpdateResevationDTO request);
     boolean cancelReservationAsync(long idReservation);
+    boolean updateSage(long idReservation, String sagaId);
     boolean validateSagaId(long idReservation, String sagaId);
     boolean updateOnlyReservation(ReservationDTO reservation);
     boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);

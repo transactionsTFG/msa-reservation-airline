@@ -9,5 +9,4 @@ public class ReservationLIneDTO {
     private boolean active;
     private int passengers;
     private double price;
-    private String sagaId;
 }

@@ -7,5 +7,6 @@ import business.reservation.ReservationDTO;
 
 public interface ReservationDAO {
     Reservation save(ReservationDTO reservationDTO);
+    Optional<Reservation> update(ReservationDTO reservation);
     Optional<Reservation> findById(long id);
 }

@@ -31,6 +31,17 @@ public class ReservationDAOImpl implements ReservationDAO {
     @Override
     public Optional<Reservation> findById(long id) {
         return Optional.ofNullable(this.entityManager.find(Reservation.class, id, LockModeType.OPTIMISTIC));
-    }    
+    }
+
+    @Override
+    public Optional<Reservation> update(ReservationDTO reservation) {
+        return this.findById(reservation.getId())
+                .map(r -> {
+                    r.setActive(reservation.isActive());
+                    r.setCustomerId(reservation.getCustomerId());
+                    r.setStatusSaga(reservation.getStatusSaga());
+                    return this.entityManager.merge(r);
+                });
+    }
 
 }

@@ -9,7 +9,7 @@ public interface ReservationServices {
     ReservationWithLinesDTO getReservationWithLinesById(long idReservation);
     boolean existsById(long idReservation);
     boolean isActiveReservation(long idReservation);
-    boolean updateSage(long idReservation, String sagaId);
+    boolean updateSaga(long idReservation, String sagaId);
     boolean validateSagaId(long idReservation, String sagaId);
     boolean updateOnlyReservation(ReservationDTO reservation);
     boolean updateReservationAndSaveLines(ReservationWithLinesDTO reservationWithLinesDTO);

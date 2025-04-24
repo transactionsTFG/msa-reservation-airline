@@ -63,14 +63,6 @@ public class ReservationServicesImpl implements ReservationServices {
         return true;
     }
 
- 
-    @Override
-    public boolean validateSagaId(long idReservation, String sagaId) {
-        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
-        return r.isPresent() && r.get().getSagaId() != null && r.get().getSagaId().equals(sagaId);
-    }
-
-
     @Override
     public boolean updateReservationAndUpdateLines(ReservationWithLinesDTO reservationWithLinesDTO) {
         Optional<Reservation> r = this.reservationDAO.findById(reservationWithLinesDTO.getReservation().getId());
@@ -95,6 +87,13 @@ public class ReservationServicesImpl implements ReservationServices {
         this.entityManager.merge(r.get());
         return true;
     }
+
+ 
+    @Override
+    public boolean validateSagaId(long idReservation, String sagaId) {
+        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
+        return r.isPresent() && r.get().getSagaId() != null && r.get().getSagaId().equals(sagaId);
+    }
     
     @Override
     public ReservationDTO findById(long idReservation) {
@@ -102,12 +101,12 @@ public class ReservationServicesImpl implements ReservationServices {
     }
 
     @Override
-    public boolean updateSage(long idReservation, String sagaId) {
-        Reservation r = this.entityManager.find(Reservation.class, idReservation, LockModeType.OPTIMISTIC);
-        if (r == null) 
+    public boolean updateSaga(long idReservation, String sagaId) {
+        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
+        if (r.isEmpty()) 
             return false;
-        r.setSagaId(sagaId);
-        this.entityManager.merge(r);
+        r.get().setSagaId(sagaId);
+        this.entityManager.merge(r.get());
         return true;
     }
     

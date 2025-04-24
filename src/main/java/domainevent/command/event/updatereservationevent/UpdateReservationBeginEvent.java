@@ -34,7 +34,7 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
         Map<Long, ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservationToMapIgnoreActive(flightInstanceIds, 
                                                                                                                u.getIdReservation());
         final String sagaId = UUID.randomUUID().toString();
-        this.reservationServices.updateSage(u.getIdReservation(), sagaId);
+        this.reservationServices.updateSaga(u.getIdReservation(), sagaId);
         UpdateReservationCommand command = new UpdateReservationCommand();
         command.setIdReservation(u.getIdReservation());
         List<IdUpdateFlightInstanceInfo> flightInfo = new ArrayList<>();

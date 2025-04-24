@@ -41,6 +41,7 @@ public class UpdateReservationCommitEvent extends BaseHandler {
             }).toList();
             ReservationDTO buildReservation = this.reservationServices.findById(c.getIdReservation());
             buildReservation.setStatusSaga(SagaPhases.COMPLETED);
+            buildReservation.setActive(true);
             ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
                                                                                         .reservation(buildReservation)
                                                                                         .lines(buildReservationLine)

@@ -8,6 +8,12 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 
+import business.qualifier.createreservation.CreateReservationCommitQualifier;
+import business.qualifier.createreservation.CreateReservationRollbackQualifier;
+import business.qualifier.modifyreservation.UpdateReservationByModifyReservationCommit;
+import business.qualifier.modifyreservation.UpdateReservationByModifyReservationRollback;
+import business.qualifier.removereservation.RemoveReservationByCommitQualifier;
+import business.qualifier.removereservation.RemoveReservationByRollbackQualifier;
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
 import business.saga.deletereservation.qualifier.RemoveReservationBeginQualifier;
 import business.saga.updatereservation.qualifier.UpdateReservationBeginQualifier;
@@ -15,12 +21,7 @@ import domainevent.command.handler.CommandHandler;
 
 import msa.commons.event.EventId;
 
-import msa.commons.microservices.reservationairline.qualifier.CreateReservationCommitQualifier;
-import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
-import msa.commons.microservices.reservationairline.removereservation.qualifier.RemoveReservationByCommitQualifier;
-import msa.commons.microservices.reservationairline.removereservation.qualifier.RemoveReservationByRollbackQualifier;
-import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
-import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationRollback;
+
 
 @Singleton
 @Startup

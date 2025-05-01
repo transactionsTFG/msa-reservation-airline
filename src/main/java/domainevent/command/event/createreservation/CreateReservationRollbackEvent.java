@@ -6,13 +6,13 @@ import javax.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import business.qualifier.createreservation.CreateReservationRollbackQualifier;
 import business.reservation.ReservationDTO;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.createreservation.CreateReservationCommand;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
-import msa.commons.microservices.reservationairline.qualifier.CreateReservationRollbackQualifier;
 import msa.commons.saga.SagaPhases;
 
 @Stateless

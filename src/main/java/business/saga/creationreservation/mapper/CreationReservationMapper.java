@@ -2,11 +2,10 @@ package business.saga.creationreservation.mapper;
 
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import business.dto.CustomerDTO;
-import msa.commons.microservices.reservationairline.commandevent.model.CustomerInfo;
+import msa.commons.commands.createreservation.model.CustomerInfo;
 
 @Mapper
 public interface CreationReservationMapper {

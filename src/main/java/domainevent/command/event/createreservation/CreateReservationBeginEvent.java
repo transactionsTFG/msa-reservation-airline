@@ -1,9 +1,7 @@
 package domainevent.command.event.createreservation;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,10 +18,11 @@ import business.saga.creationreservation.mapper.CreationReservationMapper;
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.createreservation.CreateReservationCommand;
+import msa.commons.commands.createreservation.model.IdFlightInstanceInfo;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.commandevent.CreateReservationCommand;
-import msa.commons.microservices.reservationairline.commandevent.model.IdFlightInstanceInfo;
+
 import msa.commons.saga.SagaPhases;
 
 @Stateless

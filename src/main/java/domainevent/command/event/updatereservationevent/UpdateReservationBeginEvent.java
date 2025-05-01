@@ -10,17 +10,16 @@ import javax.ejb.Stateless;
 
 import business.dto.FlightInstanceSeatsDTO;
 import business.dto.modifyreservation.UpdateResevationDTO;
-import business.reservation.ReservationDTO;
 import business.reservationline.ReservationLIneDTO;
 
 import business.saga.updatereservation.qualifier.UpdateReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.modifyreservation.UpdateReservationCommand;
+import msa.commons.commands.modifyreservation.model.Action;
+import msa.commons.commands.modifyreservation.model.IdUpdateFlightInstanceInfo;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
-import msa.commons.microservices.reservationairline.updatereservation.model.Action;
-import msa.commons.microservices.reservationairline.updatereservation.model.IdUpdateFlightInstanceInfo;
 
 @Stateless
 @UpdateReservationBeginQualifier

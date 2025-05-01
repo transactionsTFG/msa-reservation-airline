@@ -3,13 +3,13 @@ package domainevent.command.event.removereservationevent;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import business.qualifier.removereservation.RemoveReservationByCommitQualifier;
 import business.reservation.ReservationDTO;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.removereservation.RemoveReservationCommand;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.removereservation.command.RemoveReservationCommand;
-import msa.commons.microservices.reservationairline.removereservation.qualifier.RemoveReservationByCommitQualifier;
 import msa.commons.saga.SagaPhases;
 
 @Stateless

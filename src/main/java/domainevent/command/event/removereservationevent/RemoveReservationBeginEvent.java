@@ -11,10 +11,11 @@ import business.reservationline.ReservationLIneDTO;
 import business.saga.deletereservation.qualifier.RemoveReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.removereservation.IdWithSeats;
+import msa.commons.commands.removereservation.RemoveReservationCommand;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.removereservation.command.IdWithSeats;
-import msa.commons.microservices.reservationairline.removereservation.command.RemoveReservationCommand;
+
 import msa.commons.saga.SagaPhases;
 
 

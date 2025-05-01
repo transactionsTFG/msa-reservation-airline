@@ -5,17 +5,18 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import business.qualifier.modifyreservation.UpdateReservationByModifyReservationCommit;
 import business.reservation.ReservationDTO;
 import business.reservation.ReservationWithLinesDTO;
 import business.reservationline.ReservationLIneDTO;
 
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
+import msa.commons.commands.modifyreservation.UpdateReservationCommand;
+import msa.commons.commands.modifyreservation.model.Action;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.microservices.reservationairline.updatereservation.command.UpdateReservationCommand;
-import msa.commons.microservices.reservationairline.updatereservation.model.Action;
-import msa.commons.microservices.reservationairline.updatereservation.qualifier.UpdateReservationByModifyReservationCommit;
+
 import msa.commons.saga.SagaPhases;
 
 @Stateless

@@ -54,7 +54,6 @@ public class CreateReservationBeginEvent extends BaseHandler {
                                                                         .customerInfo(c.getCustomerInfo())
                                                                         .flightInstanceInfo(listFlightInfo)
                                                                         .idReservation(reservationDTO.getId())
-                                                                        .idReservationTravel(c.getIdReservationTravel())
                                                                         .build());
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventDataBuild);
     }

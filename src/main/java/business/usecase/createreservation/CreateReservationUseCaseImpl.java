@@ -28,7 +28,7 @@ public class CreateReservationUseCaseImpl implements CreateReservationUseCase {
         if (!this.rulesBusinessCustomer.isValid(request.getCustomer())) 
             return UseCaseResult.failure("Invalid customer data");
         
-        this.eventRegistry.getHandler(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_BEGIN_SAGA)
+        this.eventRegistry.getHandler(EventId.CREATE_RESERVATION_TRAVEL)
                                  .commandPublisher(this.gson.toJson(request));
         return UseCaseResult.success(true);                   
     }

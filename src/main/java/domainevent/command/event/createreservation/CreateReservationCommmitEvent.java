@@ -51,6 +51,7 @@ public class CreateReservationCommmitEvent extends BaseHandler {
                                                                                         .lines(buildReservationLine)
                                                                                         .build();
             this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
+            this.jmsEventPublisher.publish(EventId.CREATE_RESERVATION_TRAVEL_ONLY_AIRLINE_COMMIT, eventData);
             LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
         }
     }

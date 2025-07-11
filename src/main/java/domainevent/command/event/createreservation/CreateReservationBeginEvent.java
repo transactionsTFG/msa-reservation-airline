@@ -2,7 +2,6 @@ package domainevent.command.event.createreservation;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ejb.Local;
@@ -11,10 +10,7 @@ import javax.ejb.Stateless;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import business.dto.FlightInstanceSeatsDTO;
-import business.dto.ReservationRequestDTO;
 import business.reservation.ReservationDTO;
-import business.saga.creationreservation.mapper.CreationReservationMapper;
 import business.saga.creationreservation.qualifier.CreateReservationBeginQualifier;
 import domainevent.command.handler.BaseHandler;
 import domainevent.command.handler.CommandHandler;
@@ -32,15 +28,15 @@ public class CreateReservationBeginEvent extends BaseHandler {
     private static final Logger LOGGER = LogManager.getLogger(CreateReservationBeginEvent.class);
     @Override
     public void commandPublisher(String json) {
-        ReservationRequestDTO r = this.gson.fromJson(json, ReservationRequestDTO.class);
-        final String sagaId = UUID.randomUUID().toString(); 
-        ReservationDTO reservationDTO = new ReservationDTO(false, -1, SagaPhases.STARTED, sagaId);
+        EventData eventData = EventData.fromJson(json, CreateReservationCommand.class);
+        CreateReservationCommand c = (CreateReservationCommand) eventData.getData(); 
+        ReservationDTO reservationDTO = new ReservationDTO(false, -1, SagaPhases.STARTED, eventData.getSagaId());
         reservationDTO = this.reservationServices.creationReservation(reservationDTO);
         
-        Map<Long, Integer> grouped = r.getFlightInstanceSeats().stream()
+        Map<Long, Integer> grouped = c.getFlightInstanceInfo().stream()
                                     .collect(Collectors.toMap(
-                                        FlightInstanceSeatsDTO::getIdFlightInstance,
-                                        FlightInstanceSeatsDTO::getNumberSeats,
+                                        IdFlightInstanceInfo::getIdFlightInstance,
+                                        IdFlightInstanceInfo::getNumberSeats,
                                         Integer::sum
                                     ));
         
@@ -51,15 +47,16 @@ public class CreateReservationBeginEvent extends BaseHandler {
             flightInfo.setIdAircraft(-1); flightInfo.setTotalOccupiedSeats(0); flightInfo.setPrice(0);
             return flightInfo;
         }).toList();
-        LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA {} *****", sagaId);
-        EventData eventData = new EventData(sagaId, 
+        LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA {} *****", eventData.getSagaId());
+        EventData eventDataBuild = new EventData(eventData.getSagaId(), 
                                             List.of(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA), 
                                             CreateReservationCommand.builder()
-                                                                        .customerInfo(CreationReservationMapper.INSTANCE.dtoToCustomerInfo(r.getCustomer()))
+                                                                        .customerInfo(c.getCustomerInfo())
                                                                         .flightInstanceInfo(listFlightInfo)
                                                                         .idReservation(reservationDTO.getId())
+                                                                        .idReservationTravel(c.getIdReservationTravel())
                                                                         .build());
-        this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventData);
+        this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventDataBuild);
     }
     
 }

@@ -31,29 +31,15 @@ public class CreateReservationBeginEvent extends BaseHandler {
         EventData eventData = EventData.fromJson(json, CreateReservationCommand.class);
         CreateReservationCommand c = (CreateReservationCommand) eventData.getData(); 
         ReservationDTO reservationDTO = new ReservationDTO(false, -1, SagaPhases.STARTED, eventData.getSagaId());
-        reservationDTO = this.reservationServices.creationReservation(reservationDTO);
-        
-        Map<Long, Integer> grouped = c.getFlightInstanceInfo().stream()
-                                    .collect(Collectors.toMap(
-                                        IdFlightInstanceInfo::getIdFlightInstance,
-                                        IdFlightInstanceInfo::getNumberSeats,
-                                        Integer::sum
-                                    ));
-        
-        List<IdFlightInstanceInfo> listFlightInfo = grouped.entrySet().stream().map(entry -> {
-            IdFlightInstanceInfo flightInfo = new IdFlightInstanceInfo();
-            flightInfo.setIdFlightInstance(entry.getKey());
-            flightInfo.setNumberSeats(entry.getValue()); 
-            flightInfo.setIdAircraft(-1); flightInfo.setTotalOccupiedSeats(0); flightInfo.setPrice(0);
-            return flightInfo;
-        }).toList();
+        reservationDTO = this.reservationServices.creationReservation(reservationDTO);      
         LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA {} *****", eventData.getSagaId());
         EventData eventDataBuild = new EventData(eventData.getSagaId(), 
                                             List.of(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA), 
                                             CreateReservationCommand.builder()
                                                                         .customerInfo(c.getCustomerInfo())
-                                                                        .flightInstanceInfo(listFlightInfo)
+                                                                        .flightInstanceInfo(c.getFlightInstanceInfo())
                                                                         .idReservation(reservationDTO.getId())
+                                                                        .idUser(c.getIdUser())
                                                                         .build());
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventDataBuild);
     }

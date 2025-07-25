@@ -17,7 +17,7 @@ import domainevent.command.handler.CommandHandler;
 import msa.commons.commands.createreservation.CreateReservationCommand;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-import msa.commons.event.eventoperation.reservation.ReservationAirline;
+import msa.commons.event.eventoperation.reservation.CreateReservation;
 import msa.commons.saga.SagaPhases;
 
 @Stateless
@@ -52,7 +52,7 @@ public class CreateReservationCommmitEvent extends BaseHandler {
                                                                                         .lines(buildReservationLine)
                                                                                         .build();
             this.reservationServices.updateReservationAndSaveLines(reservationWithLinesDTO);
-            eventData.setOperation(ReservationAirline.CREATE_RESERVATION_ONLY_AIRLINE_COMMIT);
+            eventData.setOperation(CreateReservation.CREATE_RESERVATION_ONLY_AIRLINE_COMMIT);
             this.jmsEventPublisher.publish(EventId.CREATE_RESERVATION_TRAVEL, eventData);
             LOGGER.info("***** COMMIT TERMINADO CON EXITO EN SAGA CREACION DE RESERVA *****");
         }

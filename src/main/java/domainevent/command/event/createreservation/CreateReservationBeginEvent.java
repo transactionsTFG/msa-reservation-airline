@@ -34,13 +34,16 @@ public class CreateReservationBeginEvent extends BaseHandler {
         reservationDTO = this.reservationServices.creationReservation(reservationDTO);      
         LOGGER.info("***** INICIAMOS SAGA CREACION DE RESERVA {} *****", eventData.getSagaId());
         EventData eventDataBuild = new EventData(eventData.getSagaId(), 
+                                            eventData.getOperation(),
                                             List.of(EventId.RESERVATION_AIRLINE_CREATE_RESERVATION_ROLLBACK_SAGA), 
                                             CreateReservationCommand.builder()
                                                                         .customerInfo(c.getCustomerInfo())
                                                                         .flightInstanceInfo(c.getFlightInstanceInfo())
                                                                         .idReservation(reservationDTO.getId())
                                                                         .idUser(c.getIdUser())
-                                                                        .build());
+                                                                        .idTravelAgency(c.getIdTravelAgency())
+                                                                        .build(),
+                                            eventData.getTransactionActive());
         this.jmsEventPublisher.publish(EventId.CUSTOMER_AIRLINE_GET_CUSTOMER_RESERVATION_AIRLINE_CREATE_RESERVATION, eventDataBuild);
     }
     

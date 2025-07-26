@@ -10,6 +10,7 @@ import domainevent.command.handler.CommandHandler;
 import msa.commons.commands.removereservation.RemoveReservationCommand;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
+import msa.commons.event.eventoperation.reservation.DeleteReservation;
 import msa.commons.saga.SagaPhases;
 
 @Stateless
@@ -25,6 +26,8 @@ public class RemoveReservationCommitEvent extends BaseHandler {
             ReservationDTO reservation = this.reservationServices.findById(c.getIdReservation());
             reservation.setStatusSaga(SagaPhases.COMPLETED);
             this.reservationLineServices.removeReservation(reservation);
+            eventData.setOperation(DeleteReservation.DELETE_RESERVATION_ONLY_AIRLINE_COMMIT);
+            this.jmsEventPublisher.publish(EventId.REMOVE_RESERVATION_TRAVEL, eventData);
         }
         else
             this.jmsEventPublisher.publish(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA, eventData);

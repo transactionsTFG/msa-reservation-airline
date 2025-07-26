@@ -26,18 +26,17 @@ public class RemoveReservationBeginEvent extends BaseHandler {
 
     @Override
     public void commandPublisher(String json) {
-        ReservationWithLinesDTO reservationWithLinesDTO = this.gson.fromJson(json, ReservationWithLinesDTO.class);
-        final String sagaId = UUID.randomUUID().toString();
+        EventData eventData = EventData.fromJson(json, RemoveReservationCommand.class);
+        RemoveReservationCommand removeReservationCommand = (RemoveReservationCommand) eventData.getData();
+        ReservationWithLinesDTO reservationWithLinesDTO = this.reservationServices.getReservationWithLinesById(removeReservationCommand.getIdReservation());
         reservationWithLinesDTO.getReservation().setStatusSaga(SagaPhases.STARTED);
-        reservationWithLinesDTO.getReservation().setSagaId(sagaId);
-        this.reservationServices.updateSaga(reservationWithLinesDTO.getReservation().getId(), sagaId);
+        reservationWithLinesDTO.getReservation().setSagaId(eventData.getSagaId());
+        this.reservationServices.updateSaga(reservationWithLinesDTO.getReservation().getId(), eventData.getSagaId());
         final List<Long> flightInstanceIds = reservationWithLinesDTO.getLines().stream().map(ReservationLIneDTO::getFlightInstanceId).toList();
         this.reservationServices.updateOnlyReservation(reservationWithLinesDTO.getReservation());
-        RemoveReservationCommand removeReservationCommand = new RemoveReservationCommand();
-        removeReservationCommand.setIdReservation(reservationWithLinesDTO.getReservation().getId());
         List<ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservation(flightInstanceIds, reservationWithLinesDTO.getReservation().getId());
         removeReservationCommand.setListIdFlightInstance(reservationLines.stream().map(rL -> new IdWithSeats(rL.getFlightInstanceId(), rL.getPassengers())).toList());
-        this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_REMOVE_RESERVATION, new EventData(sagaId,  List.of(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA), removeReservationCommand));
+        this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_REMOVE_RESERVATION, eventData);
     }
     
 }

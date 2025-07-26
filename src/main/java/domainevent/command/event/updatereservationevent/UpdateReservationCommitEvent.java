@@ -16,7 +16,7 @@ import msa.commons.commands.modifyreservation.UpdateReservationCommand;
 import msa.commons.commands.modifyreservation.model.Action;
 import msa.commons.event.EventData;
 import msa.commons.event.EventId;
-
+import msa.commons.event.eventoperation.reservation.UpdateReservation;
 import msa.commons.saga.SagaPhases;
 
 @Stateless
@@ -48,6 +48,8 @@ public class UpdateReservationCommitEvent extends BaseHandler {
                                                                                         .lines(buildReservationLine)
                                                                                         .build();
             this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
+            eventData.setOperation(UpdateReservation.UPDATE_RESERVATION_ONLY_AIRLINE_COMMIT);
+            this.jmsEventPublisher.publish(EventId.UPDATE_RESERVATION_TRAVEL, eventData);
         }
     }
     

@@ -28,37 +28,33 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
 
     @Override
     public void commandPublisher(String json) {
-        UpdateResevationDTO u = this.gson.fromJson(json, UpdateResevationDTO.class);
-        final List<Long> flightInstanceIds = u.getFlightInstanceSeats().stream().map(FlightInstanceSeatsDTO::getIdFlightInstance).toList();
+        EventData eventData = EventData.fromJson(json, UpdateReservationCommand.class);
+        UpdateReservationCommand c = (UpdateReservationCommand) eventData.getData();
+        final List<Long> flightInstanceIds = c.getFlightInstanceInfo().stream().map(IdUpdateFlightInstanceInfo::getIdFlightInstance).toList();
         Map<Long, ReservationLIneDTO> reservationLines = this.reservationLineServices.findByIdReservationToMapIgnoreActive(flightInstanceIds, 
-                                                                                                               u.getIdReservation());
-        final String sagaId = UUID.randomUUID().toString();
-        this.reservationServices.updateSaga(u.getIdReservation(), sagaId);
+                                                                                                               c.getIdReservation());
+        this.reservationServices.updateSaga(c.getIdReservation(), eventData.getSagaId());
         UpdateReservationCommand command = new UpdateReservationCommand();
-        command.setIdReservation(u.getIdReservation());
-        List<IdUpdateFlightInstanceInfo> flightInfo = new ArrayList<>();
-        for(FlightInstanceSeatsDTO f : u.getFlightInstanceSeats()) {
+        command.setIdReservation(c.getIdReservation());
+        for(IdUpdateFlightInstanceInfo f : c.getFlightInstanceInfo()) {
             ReservationLIneDTO r = reservationLines.get(f.getIdFlightInstance());
             if(r == null || r.getPassengers() == f.getNumberSeats())
                 continue;
-            IdUpdateFlightInstanceInfo id = new IdUpdateFlightInstanceInfo();
-            id.setIdFlightInstance(r.getFlightInstanceId());
+            f.setIdFlightInstance(r.getFlightInstanceId());
             if (f.getNumberSeats() > r.getPassengers()){
-                id.setAction(Action.ADD_SEATS);
-                id.setNumberSeats(f.getNumberSeats() - r.getPassengers());
+                f.setAction(Action.ADD_SEATS);
+                f.setNumberSeats(f.getNumberSeats() - r.getPassengers());
             }
             else if(f.getNumberSeats() == 0) {
-                id.setNumberSeats(r.getPassengers());
-                id.setAction(Action.REMOVE_FLIGHT);
+                f.setNumberSeats(r.getPassengers());
+                f.setAction(Action.REMOVE_FLIGHT);
             }
             else if(f.getNumberSeats() < r.getPassengers()) {
-                id.setNumberSeats(r.getPassengers() - f.getNumberSeats());
-                id.setAction(Action.REMOVE_SEATS);
+                f.setNumberSeats(r.getPassengers() - f.getNumberSeats());
+                f.setAction(Action.REMOVE_SEATS);
             }
-            flightInfo.add(id);
         }
-        command.setFlightInstanceInfo(flightInfo);
-        this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_MODIFY_RESERVATION, new EventData(sagaId, List.of(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA), command));
+        this.jmsEventPublisher.publish(EventId.FLIGHT_VALIDATE_FLIGHT_RESERVATION_AIRLINE_MODIFY_RESERVATION, eventData);
     }
     
 }

@@ -45,7 +45,7 @@ public class EventHandlerRegistry {
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_BEGIN_SAGA, this.updateReservationBeginEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_COMMIT_SAGA, this.updateReservationCommitEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, this.updateReservationRollbackEvent);
-        this.handlers.put(EventId.CREATE_RESERVATION_TRAVEL, this.removeReservationBeginEvent);
+        this.handlers.put(EventId.REMOVE_RESERVATION_TRAVEL, this.removeReservationBeginEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_COMMIT_SAGA, this.removeReservationCommitEvent);
         this.handlers.put(EventId.RESERVATION_AIRLINE_REMOVE_RESERVATION_ROLLBACK_SAGA, this.removeReservationRollbackEvent);
     }

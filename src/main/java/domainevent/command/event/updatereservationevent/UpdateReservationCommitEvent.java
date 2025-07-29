@@ -48,6 +48,15 @@ public class UpdateReservationCommitEvent extends BaseHandler {
                                                                                         .lines(buildReservationLine)
                                                                                         .build();
             this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
+            ReservationWithLinesDTO rL = this.reservationServices.getReservationWithLinesByIdAndActive(c.getIdReservation());
+            double totalPrice = 0;
+            int seats = 0;
+            for (ReservationLIneDTO line: rL.getLines()){
+                totalPrice += line.getPrice() * line.getPassengers(); 
+                seats += line.getPassengers();
+            }
+            c.setTotalPrice(totalPrice);
+            c.setNumberOfSeats(seats);
             eventData.setOperation(UpdateReservation.UPDATE_RESERVATION_ONLY_AIRLINE_COMMIT);
             this.jmsEventPublisher.publish(EventId.UPDATE_RESERVATION_TRAVEL, eventData);
         }

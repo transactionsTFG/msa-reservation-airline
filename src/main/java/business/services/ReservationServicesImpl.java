@@ -129,5 +129,13 @@ public class ReservationServicesImpl implements ReservationServices {
         Set<ReservationLine> rl = r.get().getReservationLine();
         return new ReservationWithLinesDTO(r.get().toDTO(), rl.stream().map(ReservationLineMapper.INSTANCE::entityToDto).toList());
     }
+    @Override
+    public ReservationWithLinesDTO getReservationWithLinesByIdAndActive(long idReservation) {
+        Optional<Reservation> r = this.reservationDAO.findById(idReservation);
+        if(r.isEmpty())
+            return null;
+        Set<ReservationLine> rl = r.get().getReservationLine();
+        return new ReservationWithLinesDTO(r.get().toDTO(), rl.stream().filter(ReservationLine::isActive).map(ReservationLineMapper.INSTANCE::entityToDto).toList());
+    }
 
 }

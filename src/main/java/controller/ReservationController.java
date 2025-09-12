@@ -1,5 +1,6 @@
 package controller;
 
+import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,6 +28,10 @@ public class ReservationController {
         return this.reservationServices.getReservationWithLinesById(idReservation);
     }
 
+	@EJB
+	public void setReservationServices(ReservationServices reservationServices) {
+		this.reservationServices = reservationServices;
+	}
     
 }
 

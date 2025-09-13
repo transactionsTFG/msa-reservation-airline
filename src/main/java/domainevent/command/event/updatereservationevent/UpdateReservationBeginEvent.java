@@ -33,6 +33,10 @@ public class UpdateReservationBeginEvent extends BaseHandler  {
         this.reservationServices.updateSaga(c.getIdReservation(), eventData.getSagaId());
         UpdateReservationCommand command = new UpdateReservationCommand();
         command.setIdReservation(c.getIdReservation());
+        c.setFlightInstanceInfo(c.getFlightInstanceInfo().stream().filter(f -> { 
+            ReservationLIneDTO r = reservationLines.get(f.getIdFlightInstance());
+            return r != null && r.getPassengers() != f.getNumberSeats(); 
+        }).toList());
         for(IdUpdateFlightInstanceInfo f : c.getFlightInstanceInfo()) {
             ReservationLIneDTO r = reservationLines.get(f.getIdFlightInstance());
             if(r == null || r.getPassengers() == f.getNumberSeats())

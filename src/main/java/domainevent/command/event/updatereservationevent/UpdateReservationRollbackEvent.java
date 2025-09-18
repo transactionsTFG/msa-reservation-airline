@@ -31,29 +31,31 @@ public class UpdateReservationRollbackEvent extends BaseHandler {
     public void commandPublisher(String json) {
         EventData eventData = EventData.fromJson(json, UpdateReservationCommand.class);
         UpdateReservationCommand c = (UpdateReservationCommand) eventData.getData();
-        List<ReservationLIneDTO> reservationLines = new ArrayList<>();
-        for (IdUpdateFlightInstanceInfo info : c.getFlightInstanceInfo()) {
-            ReservationLIneDTO r = new ReservationLIneDTO();
-            r.setIdReservation(c.getIdReservation());
-            r.setFlightInstanceId(info.getIdFlightInstance());
-            reservationLines.add(r);
+        if (c.isAllFlightUpdate()) {
+            List<ReservationLIneDTO> reservationLines = new ArrayList<>();
+            for (IdUpdateFlightInstanceInfo info : c.getFlightInstanceInfo()) {
+                ReservationLIneDTO r = new ReservationLIneDTO();
+                r.setIdReservation(c.getIdReservation());
+                r.setFlightInstanceId(info.getIdFlightInstance());
+                reservationLines.add(r);
+            }
+            List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
+                ReservationLIneDTO l = new ReservationLIneDTO();
+                l.setFlightInstanceId(info.getIdFlightInstance());
+                l.setActive(true);
+                l.setIdReservation(c.getIdReservation());
+                l.setPassengers(info.getAction().equals(Action.ADD_SEATS) ? info.getNumberSeats() :  -info.getNumberSeats());
+                l.setPrice(info.getPrice());
+                return l;
+            }).toList();
+            ReservationDTO buildReservation = this.reservationServices.findById(c.getIdReservation());
+            buildReservation.setStatusSaga(SagaPhases.COMPLETED);
+            ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
+                                                                                        .reservation(buildReservation)
+                                                                                        .lines(buildReservationLine)
+                                                                                        .build();
+            this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
         }
-        List<ReservationLIneDTO> buildReservationLine = c.getFlightInstanceInfo().stream().map(info -> {
-            ReservationLIneDTO l = new ReservationLIneDTO();
-            l.setFlightInstanceId(info.getIdFlightInstance());
-            l.setActive(true);
-            l.setIdReservation(c.getIdReservation());
-            l.setPassengers(info.getAction().equals(Action.ADD_SEATS) ? info.getNumberSeats() :  -info.getNumberSeats());
-            l.setPrice(info.getPrice());
-            return l;
-        }).toList();
-        ReservationDTO buildReservation = this.reservationServices.findById(c.getIdReservation());
-        buildReservation.setStatusSaga(SagaPhases.COMPLETED);
-        ReservationWithLinesDTO reservationWithLinesDTO = ReservationWithLinesDTO.builder()
-                                                                                    .reservation(buildReservation)
-                                                                                    .lines(buildReservationLine)
-                                                                                    .build();
-        this.reservationServices.updateReservationAndUpdateLines(reservationWithLinesDTO);
         this.jmsEventPublisher.publish(EventId.FLIGHT_UPDATE_FLIGHT_BY_AIRLINE_MODIFY_RESERVATION_ROLLBACK_SAGA, eventData);
     }
     
